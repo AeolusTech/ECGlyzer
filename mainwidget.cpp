@@ -52,8 +52,9 @@ void MainWidget::createMenuBar()
 
 void MainWidget::createParseArcModule()
 {
-    m_parseArcDatModule = new QGroupBox("Parse ARC module");
+    m_parseArcDatModule = new QGroupBox("Parse ARC and DAT files");
     m_parseArcDatVBoxLayout = new QVBoxLayout;
+    QHBoxLayout *hboxLayout = new QHBoxLayout;
     m_parseArcDatLayout = new QFormLayout;
 
     m_selectedInputDirTextEdit = new QTextEdit("");
@@ -70,7 +71,13 @@ void MainWidget::createParseArcModule()
                      [=]() { this->handleSelectDirClicked(m_selectedOutputDirTextEdit); });
     m_parseArcDatLayout->addRow(m_selectedOutputDirTextEdit, m_selectOutputDirPushButton);
 
-    m_parseArcDatVBoxLayout->addItem(m_parseArcDatLayout);
+    m_parseArcDatExecutePushButton = new QPushButton("Parse");
+
+    hboxLayout->addItem(m_parseArcDatLayout);
+    hboxLayout->addWidget(m_parseArcDatExecutePushButton);
+    hboxLayout->addSpacing(m_parseArcDatExecutePushButton->logicalDpiX());
+
+    m_parseArcDatVBoxLayout->addItem(hboxLayout);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
 
@@ -120,6 +127,90 @@ void MainWidget::createParseArcModule()
     m_parseArcDatModule->setLayout(m_parseArcDatVBoxLayout);
 }
 
+void MainWidget::createAnalyzeCompareCsvModule()
+{
+    m_analyzeCompareCsvModule = new QGroupBox("Analyze and Compare CSV");
+    m_analyzeCompareCsvVBoxLayout = new QVBoxLayout;
+    QHBoxLayout *hboxLayout = new QHBoxLayout;
+    m_analyzeCompareCsvLayout = new QFormLayout;
+
+    m_selectedInputDirCsvTextEdit = new QTextEdit("");
+    m_selectedInputDirCsvTextEdit->setReadOnly(true);
+    m_selectInputDirCsvPushButton = new QPushButton("Input directory");
+    QObject::connect(m_selectInputDirCsvPushButton, &QPushButton::clicked, this,
+                     [=]() { this->handleSelectDirClicked(m_selectedInputDirCsvTextEdit); });
+    m_analyzeCompareCsvLayout->addRow(m_selectedInputDirCsvTextEdit, m_selectInputDirCsvPushButton);
+
+    m_selectedOutputDirCsvTextEdit = new QTextEdit("");
+    m_selectedOutputDirCsvTextEdit->setReadOnly(true);
+    m_selectOutputDirCsvPushButton = new QPushButton("Output directory");
+    QObject::connect(m_selectOutputDirCsvPushButton, &QPushButton::clicked, this,
+                     [=]() { this->handleSelectDirClicked(m_selectedOutputDirCsvTextEdit); });
+    m_analyzeCompareCsvLayout->addRow(m_selectedOutputDirCsvTextEdit, m_selectOutputDirCsvPushButton);
+
+    m_analyzeCompareCsvExecutePushButton = new QPushButton("Parse");
+
+
+    QVBoxLayout *vbox1 = new QVBoxLayout;
+    QPushButton *btn1 = new QPushButton("E");
+    QPushButton *btn2 = new QPushButton("G");
+    vbox1->addWidget(btn1);
+    vbox1->addWidget(btn2);
+
+    hboxLayout->addItem(m_analyzeCompareCsvLayout);
+    hboxLayout->addWidget(m_analyzeCompareCsvExecutePushButton);
+    hboxLayout->addItem(vbox1);
+
+    m_analyzeCompareCsvVBoxLayout->addItem(hboxLayout);
+
+    QHBoxLayout *buttonsLayout = new QHBoxLayout;
+
+    buttonsLayout->addWidget(new QLabel("Channels"));
+    QPushButton *buttonI = new QPushButton("I");
+    buttonsLayout->addWidget(buttonI);
+
+    QPushButton *buttonII = new QPushButton("II");
+    buttonsLayout->addWidget(buttonII);
+
+    QPushButton *buttonIII = new QPushButton("III");
+    buttonsLayout->addWidget(buttonIII);
+
+    QPushButton *buttonaVr = new QPushButton("aVR");
+    buttonsLayout->addWidget(buttonaVr);
+
+    QPushButton *buttonAVL = new QPushButton("AVL");
+    buttonsLayout->addWidget(buttonAVL);
+
+    QPushButton *buttonaVF = new QPushButton("aVF");
+    buttonsLayout->addWidget(buttonaVF);
+
+    QPushButton *buttonVa = new QPushButton("Va");
+    buttonsLayout->addWidget(buttonVa);
+
+    QPushButton *buttonV2 = new QPushButton("V2");
+    buttonsLayout->addWidget(buttonV2);
+
+    QPushButton *buttonV3 = new QPushButton("V3");
+    buttonsLayout->addWidget(buttonV3);
+
+    QPushButton *buttonV4 = new QPushButton("V4");
+    buttonsLayout->addWidget(buttonV4);
+
+    QPushButton *buttonV5 = new QPushButton("V5");
+    buttonsLayout->addWidget(buttonV5);
+
+    QPushButton *buttonV6 = new QPushButton("V6");
+    buttonsLayout->addWidget(buttonV6);
+
+    QPushButton *buttonAll = new QPushButton("All");
+    buttonsLayout->addSpacing(10);
+    buttonsLayout->addWidget(buttonAll);
+
+    m_analyzeCompareCsvVBoxLayout->addItem(buttonsLayout);
+
+    m_analyzeCompareCsvModule->setLayout(m_analyzeCompareCsvVBoxLayout);
+}
+
 MainWidget::MainWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -129,8 +220,11 @@ MainWidget::MainWidget(QWidget *parent) :
     createChartRelatedStuff();
     createMenuBar();
     createParseArcModule();
+    createAnalyzeCompareCsvModule();
+
 
     m_modulesLayout->addWidget(m_parseArcDatModule);
+    m_modulesLayout->addWidget(m_analyzeCompareCsvModule);
     m_mainLayout->addLayout(m_modulesLayout, 0, 0);
 
 

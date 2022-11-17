@@ -33,17 +33,17 @@ public slots:
     void connectMarkers();
     void disconnectMarkers();
 
+
+private slots:
     void handleMarkerClicked();
     void handleSelectDirClicked(QTextEdit *fieldToUpdate);
 
-private slots:
-    void createMenuBar();
-    void createChartRelatedStuff();
-
-    void createParseArcModule();
+    void createAnalyzeCompareCsvModule();
 
 private:
-
+    void createMenuBar();
+    void createChartRelatedStuff();
+    void createParseArcModule();
 
     // CHART
     QChart *m_chart;
@@ -60,11 +60,21 @@ private:
     QTextEdit *m_selectedInputDirTextEdit;
     QPushButton *m_selectOutputDirPushButton;
     QTextEdit *m_selectedOutputDirTextEdit;
-    QGroupBox *m_parseArcDatModule;
     QFormLayout *m_parseArcDatLayout;
     QVBoxLayout *m_parseArcDatVBoxLayout;
+    QPushButton *m_parseArcDatExecutePushButton;
+    QGroupBox *m_parseArcDatModule;
 
+    // Analyzer Compare CSV module
+    QPushButton *m_selectInputDirCsvPushButton;
+    QTextEdit *m_selectedInputDirCsvTextEdit;
+    QPushButton *m_selectOutputDirCsvPushButton;
+    QTextEdit *m_selectedOutputDirCsvTextEdit;
+    QFormLayout *m_analyzeCompareCsvLayout;
+    QVBoxLayout *m_analyzeCompareCsvVBoxLayout;
+    QPushButton *m_analyzeCompareCsvExecutePushButton;
     QGroupBox *m_analyzeCompareCsvModule;
+
     QGroupBox *m_trimCsvModule;
     QGroupBox *m_exportImageModule;
     QGroupBox *m_exportPdfModule;
