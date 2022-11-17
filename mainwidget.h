@@ -34,22 +34,29 @@ public slots:
     void disconnectMarkers();
 
     void handleMarkerClicked();
-    void handleOpenFileClicked();
+    void handleSelectDirClicked(QTextEdit *fieldToUpdate);
 
 private slots:
     void createMenuBar();
+    void createChartRelatedStuff();
+
+    void createParseArcModule();
 
 private:
 
     QChart *m_chart;
     QList<QLineSeries *> m_series;
 
-    QPushButton *m_selectInputDir;
-    QTextEdit *m_selectedFileNamesTextEdit;
-    QFormLayout *m_modulesLayout;
+    QPushButton *m_selectInputDirPushButton;
+    QTextEdit *m_selectedInputDirTextEdit;
+    QPushButton *m_selectOutputDirPushButton;
+    QTextEdit *m_selectedOutputDirTextEdit;
     QMenuBar *m_menuBar;
 
+    QVBoxLayout *m_modulesLayout;
     QGroupBox *m_parseArcDatModule;
+    QFormLayout *m_parseArcDatLayout;
+
     QGroupBox *m_analyzeCompareCsvModule;
     QGroupBox *m_trimCsvModule;
     QGroupBox *m_exportImageModule;
@@ -59,7 +66,6 @@ private:
     QChartView *m_chartView;
     QGridLayout *m_mainLayout;
 
-    void createChartRelatedStuff();
 };
 
 #endif // MAINWIDGET_H

@@ -21,7 +21,6 @@ void MainWidget::createChartRelatedStuff()
 {
     m_chart = new QChart();
     m_chartView = new QChartView(m_chart, this);
-    m_mainLayout = new QGridLayout();
 
     // Set the title and show legend
     m_chart->setTitle("Legendmarker example (click on legend)");
@@ -47,23 +46,43 @@ void MainWidget::createMenuBar()
     m_menuBar = new QMenuBar;
     QMenu *fileMenu = new QMenu(tr("&File"), this);
     QAction *exitAction = fileMenu->addAction(tr("&Exit"));
-//    QObject::connect(exitAction, &QAction::triggered, this, );
+    QObject::connect(exitAction, &QAction::triggered, this, &QWidget::close);
     m_menuBar->addMenu(fileMenu);
+}
+
+void MainWidget::createParseArcModule()
+{
+    m_parseArcDatModule = new QGroupBox("Parse ARC module");
+    m_parseArcDatLayout = new QFormLayout;
+
+    m_selectedInputDirTextEdit = new QTextEdit("");
+    m_selectedInputDirTextEdit->setReadOnly(true);
+    m_selectInputDirPushButton = new QPushButton("Input directory");
+    QObject::connect(m_selectInputDirPushButton, &QPushButton::clicked, this,
+                     [=]() { this->handleSelectDirClicked(m_selectedInputDirTextEdit); });
+    m_parseArcDatLayout->addRow(m_selectedInputDirTextEdit, m_selectInputDirPushButton);
+
+    m_selectedOutputDirTextEdit = new QTextEdit("");
+    m_selectedOutputDirTextEdit->setReadOnly(true);
+    m_selectOutputDirPushButton = new QPushButton("Output directory");
+    QObject::connect(m_selectOutputDirPushButton, &QPushButton::clicked, this,
+                     [=]() { this->handleSelectDirClicked(m_selectedOutputDirTextEdit); });
+    m_parseArcDatLayout->addRow(m_selectedOutputDirTextEdit, m_selectOutputDirPushButton);
+
+    m_parseArcDatModule->setLayout(m_parseArcDatLayout);
 }
 
 MainWidget::MainWidget(QWidget *parent) :
     QWidget(parent)
 {
+    m_mainLayout = new QGridLayout;
+    m_modulesLayout = new QVBoxLayout;
+
     createChartRelatedStuff();
     createMenuBar();
+    createParseArcModule();
 
-    m_modulesLayout = new QFormLayout();
-    m_selectInputDir = new QPushButton("Input directory");
-    QObject::connect(m_selectInputDir, &QPushButton::clicked, this, &MainWidget::handleOpenFileClicked);
-
-    m_selectedFileNamesTextEdit = new QTextEdit("");
-    m_selectedFileNamesTextEdit->setReadOnly(true);
-    m_modulesLayout->addRow(m_selectInputDir, m_selectedFileNamesTextEdit);
+    m_modulesLayout->addWidget(m_parseArcDatModule);
     m_mainLayout->addLayout(m_modulesLayout, 0, 0);
 
 
@@ -188,15 +207,12 @@ void MainWidget::handleMarkerClicked()
     }
 }
 
-void MainWidget::handleOpenFileClicked()
+void MainWidget::handleSelectDirClicked(QTextEdit *fieldToUpdate)
 {
-    QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"),"/Users/kkc/private-repos/holter/example-files",tr("ARC Files (*.arc)"));
-    if (fileNames.length() != 0) {
-        m_selectedFileNamesTextEdit->clear();
-        for (const auto& fileName: fileNames) {
-            m_selectedFileNamesTextEdit->insertPlainText(fileName);
-            m_selectedFileNamesTextEdit->insertPlainText("\n");
-        }
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select dir"),"/Users/kkc/private-repos/holter/example-files");
+    if (dir.length() != 0) {
+        fieldToUpdate->clear();
+        fieldToUpdate->insertPlainText(dir);
     }
 
 }
