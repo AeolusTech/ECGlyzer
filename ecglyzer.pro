@@ -7,3 +7,6 @@ SOURCES += \
     main.cpp \
     mainwidget.cpp
 
+DISTFILES += \
+    .gitignore
+
