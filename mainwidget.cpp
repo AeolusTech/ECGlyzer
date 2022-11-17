@@ -17,24 +17,20 @@
 
 QT_USE_NAMESPACE
 
-MainWidget::MainWidget(QWidget *parent) :
-    QWidget(parent)
+void MainWidget::createChartRelatedStuff()
 {
-    // Create chart view with the chart
     m_chart = new QChart();
     m_chartView = new QChartView(m_chart, this);
 
-    // Create layout for grid and detached legend
-    m_mainLayout = new QGridLayout();
+    // Set the title and show legend
+    m_chart->setTitle("Legendmarker example (click on legend)");
+    m_chart->legend()->setVisible(true);
+    m_chart->legend()->setAlignment(Qt::AlignBottom);
 
-    QGridLayout *buttonLayout = new QGridLayout();
-    m_openFileButton = new QPushButton("Open .arc file");
-    QObject::connect(m_openFileButton, &QPushButton::clicked, this, &MainWidget::handleOpenFileClicked);
-    buttonLayout->addWidget(m_openFileButton, 0, 0);
-    m_mainLayout->addLayout(buttonLayout, 0, 0);
+    m_chartView->setRenderHint(QPainter::Antialiasing);
 
     m_mainLayout->addWidget(m_chartView, 0, 1, 3, 1);
-    setLayout(m_mainLayout);
+
 
     // Add few series
     addSeries();
@@ -43,13 +39,103 @@ MainWidget::MainWidget(QWidget *parent) :
     addSeries();
 
     connectMarkers();
+}
 
-    // Set the title and show legend
-    m_chart->setTitle("Legendmarker example (click on legend)");
-    m_chart->legend()->setVisible(true);
-    m_chart->legend()->setAlignment(Qt::AlignBottom);
+void MainWidget::createMenuBar()
+{
+    m_menuBar = new QMenuBar;
+    QMenu *fileMenu = new QMenu(tr("&File"), this);
+    QAction *exitAction = fileMenu->addAction(tr("&Exit"));
+    QObject::connect(exitAction, &QAction::triggered, this, &QWidget::close);
+    m_menuBar->addMenu(fileMenu);
+}
 
-    m_chartView->setRenderHint(QPainter::Antialiasing);
+void MainWidget::createParseArcModule()
+{
+    m_parseArcDatModule = new QGroupBox("Parse ARC module");
+    m_parseArcDatVBoxLayout = new QVBoxLayout;
+    m_parseArcDatLayout = new QFormLayout;
+
+    m_selectedInputDirTextEdit = new QTextEdit("");
+    m_selectedInputDirTextEdit->setReadOnly(true);
+    m_selectInputDirPushButton = new QPushButton("Input directory");
+    QObject::connect(m_selectInputDirPushButton, &QPushButton::clicked, this,
+                     [=]() { this->handleSelectDirClicked(m_selectedInputDirTextEdit); });
+    m_parseArcDatLayout->addRow(m_selectedInputDirTextEdit, m_selectInputDirPushButton);
+
+    m_selectedOutputDirTextEdit = new QTextEdit("");
+    m_selectedOutputDirTextEdit->setReadOnly(true);
+    m_selectOutputDirPushButton = new QPushButton("Output directory");
+    QObject::connect(m_selectOutputDirPushButton, &QPushButton::clicked, this,
+                     [=]() { this->handleSelectDirClicked(m_selectedOutputDirTextEdit); });
+    m_parseArcDatLayout->addRow(m_selectedOutputDirTextEdit, m_selectOutputDirPushButton);
+
+    m_parseArcDatVBoxLayout->addItem(m_parseArcDatLayout);
+
+    QHBoxLayout *buttonsLayout = new QHBoxLayout;
+
+    buttonsLayout->addWidget(new QLabel("Channels"));
+    QPushButton *buttonI = new QPushButton("I");
+    buttonsLayout->addWidget(buttonI);
+
+    QPushButton *buttonII = new QPushButton("II");
+    buttonsLayout->addWidget(buttonII);
+
+    QPushButton *buttonIII = new QPushButton("III");
+    buttonsLayout->addWidget(buttonIII);
+
+    QPushButton *buttonaVr = new QPushButton("aVR");
+    buttonsLayout->addWidget(buttonaVr);
+
+    QPushButton *buttonAVL = new QPushButton("AVL");
+    buttonsLayout->addWidget(buttonAVL);
+
+    QPushButton *buttonaVF = new QPushButton("aVF");
+    buttonsLayout->addWidget(buttonaVF);
+
+    QPushButton *buttonVa = new QPushButton("Va");
+    buttonsLayout->addWidget(buttonVa);
+
+    QPushButton *buttonV2 = new QPushButton("V2");
+    buttonsLayout->addWidget(buttonV2);
+
+    QPushButton *buttonV3 = new QPushButton("V3");
+    buttonsLayout->addWidget(buttonV3);
+
+    QPushButton *buttonV4 = new QPushButton("V4");
+    buttonsLayout->addWidget(buttonV4);
+
+    QPushButton *buttonV5 = new QPushButton("V5");
+    buttonsLayout->addWidget(buttonV5);
+
+    QPushButton *buttonV6 = new QPushButton("V6");
+    buttonsLayout->addWidget(buttonV6);
+
+    QPushButton *buttonAll = new QPushButton("All");
+    buttonsLayout->addSpacing(10);
+    buttonsLayout->addWidget(buttonAll);
+
+    m_parseArcDatVBoxLayout->addItem(buttonsLayout);
+
+    m_parseArcDatModule->setLayout(m_parseArcDatVBoxLayout);
+}
+
+MainWidget::MainWidget(QWidget *parent) :
+    QWidget(parent)
+{
+    m_mainLayout = new QGridLayout;
+    m_modulesLayout = new QVBoxLayout;
+
+    createChartRelatedStuff();
+    createMenuBar();
+    createParseArcModule();
+
+    m_modulesLayout->addWidget(m_parseArcDatModule);
+    m_mainLayout->addLayout(m_modulesLayout, 0, 0);
+
+
+    setLayout(m_mainLayout);
+
 }
 
 void MainWidget::addSeries()
@@ -169,8 +255,12 @@ void MainWidget::handleMarkerClicked()
     }
 }
 
-void MainWidget::handleOpenFileClicked()
+void MainWidget::handleSelectDirClicked(QTextEdit *fieldToUpdate)
 {
-    QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"),"/Users/kkc/private-repos/holter/example-files",tr("ARC Files (*.arc)"));
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select dir"),"/Users/kkc/private-repos/holter/example-files");
+    if (dir.length() != 0) {
+        fieldToUpdate->clear();
+        fieldToUpdate->insertPlainText(dir);
+    }
 
 }

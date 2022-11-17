@@ -1,4 +1,4 @@
-QT += charts
+QT += charts widgets
 
 HEADERS += \
     mainwidget.h
