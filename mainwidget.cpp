@@ -53,6 +53,7 @@ void MainWidget::createMenuBar()
 void MainWidget::createParseArcModule()
 {
     m_parseArcDatModule = new QGroupBox("Parse ARC module");
+    m_parseArcDatVBoxLayout = new QVBoxLayout;
     m_parseArcDatLayout = new QFormLayout;
 
     m_selectedInputDirTextEdit = new QTextEdit("");
@@ -69,7 +70,54 @@ void MainWidget::createParseArcModule()
                      [=]() { this->handleSelectDirClicked(m_selectedOutputDirTextEdit); });
     m_parseArcDatLayout->addRow(m_selectedOutputDirTextEdit, m_selectOutputDirPushButton);
 
-    m_parseArcDatModule->setLayout(m_parseArcDatLayout);
+    m_parseArcDatVBoxLayout->addItem(m_parseArcDatLayout);
+
+    QHBoxLayout *buttonsLayout = new QHBoxLayout;
+
+    buttonsLayout->addWidget(new QLabel("Channels"));
+    QPushButton *buttonI = new QPushButton("I");
+    buttonsLayout->addWidget(buttonI);
+
+    QPushButton *buttonII = new QPushButton("II");
+    buttonsLayout->addWidget(buttonII);
+
+    QPushButton *buttonIII = new QPushButton("III");
+    buttonsLayout->addWidget(buttonIII);
+
+    QPushButton *buttonaVr = new QPushButton("aVR");
+    buttonsLayout->addWidget(buttonaVr);
+
+    QPushButton *buttonAVL = new QPushButton("AVL");
+    buttonsLayout->addWidget(buttonAVL);
+
+    QPushButton *buttonaVF = new QPushButton("aVF");
+    buttonsLayout->addWidget(buttonaVF);
+
+    QPushButton *buttonVa = new QPushButton("Va");
+    buttonsLayout->addWidget(buttonVa);
+
+    QPushButton *buttonV2 = new QPushButton("V2");
+    buttonsLayout->addWidget(buttonV2);
+
+    QPushButton *buttonV3 = new QPushButton("V3");
+    buttonsLayout->addWidget(buttonV3);
+
+    QPushButton *buttonV4 = new QPushButton("V4");
+    buttonsLayout->addWidget(buttonV4);
+
+    QPushButton *buttonV5 = new QPushButton("V5");
+    buttonsLayout->addWidget(buttonV5);
+
+    QPushButton *buttonV6 = new QPushButton("V6");
+    buttonsLayout->addWidget(buttonV6);
+
+    QPushButton *buttonAll = new QPushButton("All");
+    buttonsLayout->addSpacing(10);
+    buttonsLayout->addWidget(buttonAll);
+
+    m_parseArcDatVBoxLayout->addItem(buttonsLayout);
+
+    m_parseArcDatModule->setLayout(m_parseArcDatVBoxLayout);
 }
 
 MainWidget::MainWidget(QWidget *parent) :

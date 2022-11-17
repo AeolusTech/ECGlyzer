@@ -44,18 +44,25 @@ private slots:
 
 private:
 
+
+    // CHART
     QChart *m_chart;
     QList<QLineSeries *> m_series;
 
+    // General
+    QMenuBar *m_menuBar;
+    QVBoxLayout *m_modulesLayout;
+    QChartView *m_chartView;
+    QGridLayout *m_mainLayout;
+
+    // Arc Parse module
     QPushButton *m_selectInputDirPushButton;
     QTextEdit *m_selectedInputDirTextEdit;
     QPushButton *m_selectOutputDirPushButton;
     QTextEdit *m_selectedOutputDirTextEdit;
-    QMenuBar *m_menuBar;
-
-    QVBoxLayout *m_modulesLayout;
     QGroupBox *m_parseArcDatModule;
     QFormLayout *m_parseArcDatLayout;
+    QVBoxLayout *m_parseArcDatVBoxLayout;
 
     QGroupBox *m_analyzeCompareCsvModule;
     QGroupBox *m_trimCsvModule;
@@ -63,8 +70,6 @@ private:
     QGroupBox *m_exportPdfModule;
     QGroupBox *m_chartModule;
 
-    QChartView *m_chartView;
-    QGridLayout *m_mainLayout;
 
 };
 
