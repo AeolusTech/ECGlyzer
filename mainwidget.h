@@ -8,13 +8,16 @@
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QGraphicsWidget>
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QFormLayout>
 #include <QtWidgets/QGraphicsGridLayout>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QGroupBox>
 #include <QtCharts/QLineSeries>
+#include <QtWidgets/QMenuBar>
 
 QT_USE_NAMESPACE
 
@@ -33,17 +36,30 @@ public slots:
     void handleMarkerClicked();
     void handleOpenFileClicked();
 
+private slots:
+    void createMenuBar();
+
 private:
 
     QChart *m_chart;
     QList<QLineSeries *> m_series;
 
-    QPushButton *m_openFileButton;
+    QPushButton *m_selectInputDir;
+    QTextEdit *m_selectedFileNamesTextEdit;
+    QFormLayout *m_modulesLayout;
+    QMenuBar *m_menuBar;
+
+    QGroupBox *m_parseArcDatModule;
+    QGroupBox *m_analyzeCompareCsvModule;
+    QGroupBox *m_trimCsvModule;
+    QGroupBox *m_exportImageModule;
+    QGroupBox *m_exportPdfModule;
+    QGroupBox *m_chartModule;
 
     QChartView *m_chartView;
     QGridLayout *m_mainLayout;
-    QGridLayout *m_fontLayout;
 
+    void createChartRelatedStuff();
 };
 
 #endif // MAINWIDGET_H

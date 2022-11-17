@@ -17,24 +17,21 @@
 
 QT_USE_NAMESPACE
 
-MainWidget::MainWidget(QWidget *parent) :
-    QWidget(parent)
+void MainWidget::createChartRelatedStuff()
 {
-    // Create chart view with the chart
     m_chart = new QChart();
     m_chartView = new QChartView(m_chart, this);
-
-    // Create layout for grid and detached legend
     m_mainLayout = new QGridLayout();
 
-    QGridLayout *buttonLayout = new QGridLayout();
-    m_openFileButton = new QPushButton("Open .arc file");
-    QObject::connect(m_openFileButton, &QPushButton::clicked, this, &MainWidget::handleOpenFileClicked);
-    buttonLayout->addWidget(m_openFileButton, 0, 0);
-    m_mainLayout->addLayout(buttonLayout, 0, 0);
+    // Set the title and show legend
+    m_chart->setTitle("Legendmarker example (click on legend)");
+    m_chart->legend()->setVisible(true);
+    m_chart->legend()->setAlignment(Qt::AlignBottom);
+
+    m_chartView->setRenderHint(QPainter::Antialiasing);
 
     m_mainLayout->addWidget(m_chartView, 0, 1, 3, 1);
-    setLayout(m_mainLayout);
+
 
     // Add few series
     addSeries();
@@ -43,13 +40,35 @@ MainWidget::MainWidget(QWidget *parent) :
     addSeries();
 
     connectMarkers();
+}
 
-    // Set the title and show legend
-    m_chart->setTitle("Legendmarker example (click on legend)");
-    m_chart->legend()->setVisible(true);
-    m_chart->legend()->setAlignment(Qt::AlignBottom);
+void MainWidget::createMenuBar()
+{
+    m_menuBar = new QMenuBar;
+    QMenu *fileMenu = new QMenu(tr("&File"), this);
+    QAction *exitAction = fileMenu->addAction(tr("&Exit"));
+//    QObject::connect(exitAction, &QAction::triggered, this, );
+    m_menuBar->addMenu(fileMenu);
+}
 
-    m_chartView->setRenderHint(QPainter::Antialiasing);
+MainWidget::MainWidget(QWidget *parent) :
+    QWidget(parent)
+{
+    createChartRelatedStuff();
+    createMenuBar();
+
+    m_modulesLayout = new QFormLayout();
+    m_selectInputDir = new QPushButton("Input directory");
+    QObject::connect(m_selectInputDir, &QPushButton::clicked, this, &MainWidget::handleOpenFileClicked);
+
+    m_selectedFileNamesTextEdit = new QTextEdit("");
+    m_selectedFileNamesTextEdit->setReadOnly(true);
+    m_modulesLayout->addRow(m_selectInputDir, m_selectedFileNamesTextEdit);
+    m_mainLayout->addLayout(m_modulesLayout, 0, 0);
+
+
+    setLayout(m_mainLayout);
+
 }
 
 void MainWidget::addSeries()
@@ -172,5 +191,12 @@ void MainWidget::handleMarkerClicked()
 void MainWidget::handleOpenFileClicked()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"),"/Users/kkc/private-repos/holter/example-files",tr("ARC Files (*.arc)"));
+    if (fileNames.length() != 0) {
+        m_selectedFileNamesTextEdit->clear();
+        for (const auto& fileName: fileNames) {
+            m_selectedFileNamesTextEdit->insertPlainText(fileName);
+            m_selectedFileNamesTextEdit->insertPlainText("\n");
+        }
+    }
 
 }
