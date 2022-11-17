@@ -8,8 +8,10 @@
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
+#include <QSlider>
 #include <QtWidgets/QGraphicsWidget>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QFormLayout>
@@ -39,6 +41,8 @@ private slots:
     void handleSelectDirClicked(QTextEdit *fieldToUpdate);
 
     void createAnalyzeCompareCsvModule();
+
+    void createTrimCsvModule();
 
 private:
     void createMenuBar();
@@ -75,7 +79,11 @@ private:
     QPushButton *m_analyzeCompareCsvExecutePushButton;
     QGroupBox *m_analyzeCompareCsvModule;
 
+    // Trim CSV module
     QGroupBox *m_trimCsvModule;
+    QSlider *m_trimCsvSlider;
+
+
     QGroupBox *m_exportImageModule;
     QGroupBox *m_exportPdfModule;
     QGroupBox *m_chartModule;

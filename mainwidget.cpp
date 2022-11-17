@@ -211,6 +211,39 @@ void MainWidget::createAnalyzeCompareCsvModule()
     m_analyzeCompareCsvModule->setLayout(m_analyzeCompareCsvVBoxLayout);
 }
 
+void MainWidget::createTrimCsvModule()
+{
+    m_trimCsvModule = new QGroupBox("Trim CSV");
+    QVBoxLayout *vbox1 = new QVBoxLayout;
+    m_trimCsvSlider = new QSlider(Qt::Horizontal);
+    QBoxLayout *boxLayout = new QBoxLayout(QBoxLayout::LeftToRight);
+    boxLayout->addWidget(m_trimCsvSlider);
+    vbox1->addItem(boxLayout);
+
+
+    QHBoxLayout *hbox1 = new QHBoxLayout;
+    QLineEdit *te1 = new QLineEdit;
+    QLineEdit *te2 = new QLineEdit;
+    hbox1->addSpacing(100);
+    hbox1->addWidget(te1);
+    hbox1->addSpacing(100);
+    hbox1->addWidget(te2);
+    hbox1->addSpacing(100);
+
+    QHBoxLayout *hbox2 = new QHBoxLayout;
+    QLabel *label1 = new QLabel("text1");
+    QLabel *label2 = new QLabel("text2");
+    hbox2->addSpacing(100);
+    hbox2->addWidget(label1);
+    hbox2->addSpacing(100);
+    hbox2->addWidget(label2);
+    hbox2->addSpacing(100);
+
+    vbox1->addItem(hbox1);
+    vbox1->addItem(hbox2);
+    m_trimCsvModule->setLayout(vbox1);
+}
+
 MainWidget::MainWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -221,10 +254,11 @@ MainWidget::MainWidget(QWidget *parent) :
     createMenuBar();
     createParseArcModule();
     createAnalyzeCompareCsvModule();
-
+    createTrimCsvModule();
 
     m_modulesLayout->addWidget(m_parseArcDatModule);
     m_modulesLayout->addWidget(m_analyzeCompareCsvModule);
+    m_modulesLayout->addWidget(m_trimCsvModule);
     m_mainLayout->addLayout(m_modulesLayout, 0, 0);
 
 
