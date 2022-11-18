@@ -52,24 +52,24 @@ void MainWidget::createMenuBar()
 
 void MainWidget::createParseArcModule()
 {
-    m_parseArcDatModule = new QGroupBox("Parse ARC and DAT files");
+    m_parseArcDatModule = new QGroupBox("Parse ARC");
     m_parseArcDatVBoxLayout = new QVBoxLayout;
     QHBoxLayout *hboxLayout = new QHBoxLayout;
     m_parseArcDatLayout = new QFormLayout;
 
-    m_selectedInputDirTextEdit = new QTextEdit("");
-    m_selectedInputDirTextEdit->setReadOnly(true);
+    m_selectedInputDirLineEdit = new QLineEdit("");
+    m_selectedInputDirLineEdit->setReadOnly(true);
     m_selectInputDirPushButton = new QPushButton("Input directory");
     QObject::connect(m_selectInputDirPushButton, &QPushButton::clicked, this,
-                     [=]() { this->handleSelectDirClicked(m_selectedInputDirTextEdit); });
-    m_parseArcDatLayout->addRow(m_selectedInputDirTextEdit, m_selectInputDirPushButton);
+                     [=]() { this->handleSelectDirClicked(m_selectedInputDirLineEdit); });
+    m_parseArcDatLayout->addRow(m_selectedInputDirLineEdit, m_selectInputDirPushButton);
 
-    m_selectedOutputDirTextEdit = new QTextEdit("");
-    m_selectedOutputDirTextEdit->setReadOnly(true);
+    m_selectedOutputDirLineEdit = new QLineEdit("");
+    m_selectedOutputDirLineEdit->setReadOnly(true);
     m_selectOutputDirPushButton = new QPushButton("Output directory");
     QObject::connect(m_selectOutputDirPushButton, &QPushButton::clicked, this,
-                     [=]() { this->handleSelectDirClicked(m_selectedOutputDirTextEdit); });
-    m_parseArcDatLayout->addRow(m_selectedOutputDirTextEdit, m_selectOutputDirPushButton);
+                     [=]() { this->handleSelectDirClicked(m_selectedOutputDirLineEdit); });
+    m_parseArcDatLayout->addRow(m_selectedOutputDirLineEdit, m_selectOutputDirPushButton);
 
     m_parseArcDatExecutePushButton = new QPushButton("Parse");
 
@@ -134,19 +134,19 @@ void MainWidget::createAnalyzeCompareCsvModule()
     QHBoxLayout *hboxLayout = new QHBoxLayout;
     m_analyzeCompareCsvLayout = new QFormLayout;
 
-    m_selectedInputDirCsvTextEdit = new QTextEdit("");
-    m_selectedInputDirCsvTextEdit->setReadOnly(true);
+    m_selectedInputDirCsvLineEdit = new QLineEdit("");
+    m_selectedInputDirCsvLineEdit->setReadOnly(true);
     m_selectInputDirCsvPushButton = new QPushButton("Input directory");
     QObject::connect(m_selectInputDirCsvPushButton, &QPushButton::clicked, this,
-                     [=]() { this->handleSelectDirClicked(m_selectedInputDirCsvTextEdit); });
-    m_analyzeCompareCsvLayout->addRow(m_selectedInputDirCsvTextEdit, m_selectInputDirCsvPushButton);
+                     [=]() { this->handleSelectDirClicked(m_selectedInputDirCsvLineEdit); });
+    m_analyzeCompareCsvLayout->addRow(m_selectedInputDirCsvLineEdit, m_selectInputDirCsvPushButton);
 
-    m_selectedOutputDirCsvTextEdit = new QTextEdit("");
-    m_selectedOutputDirCsvTextEdit->setReadOnly(true);
+    m_selectedOutputDirCsvLineEdit = new QLineEdit("");
+    m_selectedOutputDirCsvLineEdit->setReadOnly(true);
     m_selectOutputDirCsvPushButton = new QPushButton("Output directory");
     QObject::connect(m_selectOutputDirCsvPushButton, &QPushButton::clicked, this,
-                     [=]() { this->handleSelectDirClicked(m_selectedOutputDirCsvTextEdit); });
-    m_analyzeCompareCsvLayout->addRow(m_selectedOutputDirCsvTextEdit, m_selectOutputDirCsvPushButton);
+                     [=]() { this->handleSelectDirClicked(m_selectedOutputDirCsvLineEdit); });
+    m_analyzeCompareCsvLayout->addRow(m_selectedOutputDirCsvLineEdit, m_selectOutputDirCsvPushButton);
 
     m_analyzeCompareCsvExecutePushButton = new QPushButton("Parse");
 
@@ -215,7 +215,8 @@ void MainWidget::createTrimCsvModule()
 {
     m_trimCsvModule = new QGroupBox("Trim CSV");
     QVBoxLayout *vbox1 = new QVBoxLayout;
-    m_trimCsvSlider = new QSlider(Qt::Horizontal);
+    m_trimCsvSlider = new RangeSlider(Qt::Horizontal);
+//    m_trimCsvSlider->setTickPosition(QSlider::TicksBelow);
     QBoxLayout *boxLayout = new QBoxLayout(QBoxLayout::LeftToRight);
     boxLayout->addWidget(m_trimCsvSlider);
     vbox1->addItem(boxLayout);
@@ -231,8 +232,8 @@ void MainWidget::createTrimCsvModule()
     hbox1->addSpacing(100);
 
     QHBoxLayout *hbox2 = new QHBoxLayout;
-    QLabel *label1 = new QLabel("text1");
-    QLabel *label2 = new QLabel("text2");
+    QLabel *label1 = new QLabel("Start");
+    QLabel *label2 = new QLabel("Stop");
     hbox2->addSpacing(100);
     hbox2->addWidget(label1);
     hbox2->addSpacing(100);
@@ -250,16 +251,21 @@ void MainWidget::createExportImageModule()
     QFormLayout *formLayout = new QFormLayout;
 
     QMenu* menu = new QMenu;
-    menu->addAction(tr("svg"));
+    QAction* svgAction = menu->addAction(tr("svg"));
     menu->addAction(tr("jpg"));
     m_svgOrJpgToolButton = new QToolButton;
+    m_svgOrJpgToolButton->setDefaultAction(svgAction);
     m_svgOrJpgToolButton->setMenu(menu);
-    formLayout->addRow(m_svgOrJpgToolButton, new QTextEdit("Select Image format"));
+    QObject::connect(m_svgOrJpgToolButton, &QToolButton::clicked, this,
+                     [=]() { m_svgOrJpgToolButton->showMenu(); });
+    QObject::connect(m_svgOrJpgToolButton, &QToolButton::triggered, this,
+                     [=]( QAction *newValue ) { m_svgOrJpgToolButton->setDefaultAction(newValue );} );
+    formLayout->addRow(m_svgOrJpgToolButton, new QLabel("Select Image format"));
 
-    m_exportImageOutputFilename = new QTextEdit("");
+    m_exportImageOutputFilename = new QLineEdit("");
     m_exportImageOutputFilename->setReadOnly(true);
-    m_exportPdfPushButton = new QPushButton("Export Image");
-    formLayout->addRow(m_exportImageOutputFilename, m_exportImageOutputFilename);
+    m_exportImagePushButton = new QPushButton("Export Image");
+    formLayout->addRow(m_exportImageOutputFilename, m_exportImagePushButton);
     m_exportImageModule->setLayout(formLayout);
 }
 
@@ -267,10 +273,10 @@ void MainWidget::createExportPdfModule()
 {
     m_exportPdfModule = new QGroupBox("Export PDF");
     QFormLayout *formLayout = new QFormLayout;
-    m_exportPdfOutputFilename = new QTextEdit("");
+    m_exportPdfOutputFilename = new QLineEdit("");
     m_exportPdfOutputFilename->setReadOnly(true);
     m_exportPdfPushButton = new QPushButton("Export PDF");
-    formLayout->addRow(m_selectedInputDirCsvTextEdit, m_exportPdfPushButton);
+    formLayout->addRow(m_exportPdfOutputFilename, m_exportPdfPushButton);
     m_exportPdfModule->setLayout(formLayout);
 }
 
@@ -278,7 +284,7 @@ MainWidget::MainWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_mainLayout = new QGridLayout;
-    m_modulesLayout = new QVBoxLayout;
+    m_modulesLayout = new QVBoxLayout();
 
     createChartRelatedStuff();
     createMenuBar();
@@ -295,9 +301,7 @@ MainWidget::MainWidget(QWidget *parent) :
     m_modulesLayout->addWidget(m_exportPdfModule);
     m_mainLayout->addLayout(m_modulesLayout, 0, 0);
 
-
     setLayout(m_mainLayout);
-
 }
 
 void MainWidget::addSeries()
@@ -417,12 +421,12 @@ void MainWidget::handleMarkerClicked()
     }
 }
 
-void MainWidget::handleSelectDirClicked(QTextEdit *fieldToUpdate)
+void MainWidget::handleSelectDirClicked(QLineEdit *fieldToUpdate)
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Select dir"),"/Users/kkc/private-repos/holter/example-files");
     if (dir.length() != 0) {
         fieldToUpdate->clear();
-        fieldToUpdate->insertPlainText(dir);
+        fieldToUpdate->setText(dir);
     }
 
 }

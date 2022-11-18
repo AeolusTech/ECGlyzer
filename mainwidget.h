@@ -22,6 +22,8 @@
 #include <QtCharts/QLineSeries>
 #include <QtWidgets/QMenuBar>
 
+#include "rangeslider.h"
+
 QT_USE_NAMESPACE
 
 class MainWidget : public QWidget
@@ -39,7 +41,7 @@ public slots:
 
 private slots:
     void handleMarkerClicked();
-    void handleSelectDirClicked(QTextEdit *fieldToUpdate);
+    void handleSelectDirClicked(QLineEdit *fieldToUpdate);
 
 
 private:
@@ -63,9 +65,9 @@ private:
 
     // Arc Parse module
     QPushButton *m_selectInputDirPushButton;
-    QTextEdit *m_selectedInputDirTextEdit;
+    QLineEdit *m_selectedInputDirLineEdit;
     QPushButton *m_selectOutputDirPushButton;
-    QTextEdit *m_selectedOutputDirTextEdit;
+    QLineEdit *m_selectedOutputDirLineEdit;
     QFormLayout *m_parseArcDatLayout;
     QVBoxLayout *m_parseArcDatVBoxLayout;
     QPushButton *m_parseArcDatExecutePushButton;
@@ -73,9 +75,9 @@ private:
 
     // Analyzer Compare CSV module
     QPushButton *m_selectInputDirCsvPushButton;
-    QTextEdit *m_selectedInputDirCsvTextEdit;
+    QLineEdit *m_selectedInputDirCsvLineEdit;
     QPushButton *m_selectOutputDirCsvPushButton;
-    QTextEdit *m_selectedOutputDirCsvTextEdit;
+    QLineEdit *m_selectedOutputDirCsvLineEdit;
     QFormLayout *m_analyzeCompareCsvLayout;
     QVBoxLayout *m_analyzeCompareCsvVBoxLayout;
     QPushButton *m_analyzeCompareCsvExecutePushButton;
@@ -83,17 +85,17 @@ private:
 
     // Trim CSV module
     QGroupBox *m_trimCsvModule;
-    QSlider *m_trimCsvSlider;
+    RangeSlider *m_trimCsvSlider;
 
     // Export image
     QGroupBox *m_exportImageModule;
     QToolButton *m_svgOrJpgToolButton;
-    QTextEdit *m_exportImageOutputFilename;
+    QLineEdit *m_exportImageOutputFilename;
     QPushButton *m_exportImagePushButton;
 
     // Export PDF
     QGroupBox *m_exportPdfModule;
-    QTextEdit *m_exportPdfOutputFilename;
+    QLineEdit *m_exportPdfOutputFilename;
     QPushButton *m_exportPdfPushButton;
 
     // Chart with a slider
