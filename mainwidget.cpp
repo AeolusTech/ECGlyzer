@@ -15,6 +15,8 @@
 #include <QtCharts/QXYLegendMarker>
 #include <QtCore/QtMath>
 
+#include "parsearc.h"
+
 QT_USE_NAMESPACE
 
 void MainWidget::createChartRelatedStuff()
@@ -58,13 +60,15 @@ void MainWidget::createParseArcModule()
     m_parseArcDatLayout = new QFormLayout;
 
     m_selectedInputDirLineEdit = new QLineEdit("");
+    m_selectedInputDirLineEdit->setMinimumWidth(300);
     m_selectedInputDirLineEdit->setReadOnly(true);
-    m_selectInputDirPushButton = new QPushButton("Input directory");
+    m_selectInputDirPushButton = new QPushButton("Input file");
     QObject::connect(m_selectInputDirPushButton, &QPushButton::clicked, this,
-                     [=]() { this->handleSelectDirClicked(m_selectedInputDirLineEdit); });
+                     [=]() { this->handleSelectFileClicked(m_selectedInputDirLineEdit); });
     m_parseArcDatLayout->addRow(m_selectedInputDirLineEdit, m_selectInputDirPushButton);
 
     m_selectedOutputDirLineEdit = new QLineEdit("");
+    m_selectedOutputDirLineEdit->setMinimumWidth(m_selectedInputDirLineEdit->minimumWidth());
     m_selectedOutputDirLineEdit->setReadOnly(true);
     m_selectOutputDirPushButton = new QPushButton("Output directory");
     QObject::connect(m_selectOutputDirPushButton, &QPushButton::clicked, this,
@@ -72,6 +76,7 @@ void MainWidget::createParseArcModule()
     m_parseArcDatLayout->addRow(m_selectedOutputDirLineEdit, m_selectOutputDirPushButton);
 
     m_parseArcDatExecutePushButton = new QPushButton("Parse");
+    QObject::connect(m_parseArcDatExecutePushButton, &QPushButton::clicked, this, &MainWidget::executeArcParsing);
 
     hboxLayout->addItem(m_parseArcDatLayout);
     hboxLayout->addWidget(m_parseArcDatExecutePushButton);
@@ -282,6 +287,9 @@ void MainWidget::createExportPdfModule()
 MainWidget::MainWidget(QWidget *parent) :
     QWidget(parent)
 {
+    m_errorDialog = new QErrorMessage;
+    m_msgDialog = new QMessageBox;
+
     m_mainLayout = new QGridLayout;
     m_modulesLayout = new QVBoxLayout;
 
@@ -429,3 +437,43 @@ void MainWidget::handleSelectDirClicked(QLineEdit *fieldToUpdate)
     }
 
 }
+
+void MainWidget::handleSelectFileClicked(QLineEdit *fieldToUpdate)
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/Users/kkc/private-repos/holter/example-files",tr("ARC File (*.arc)"));
+    if (fileName.length() != 0) {
+        fieldToUpdate->clear();
+        fieldToUpdate->setText(fileName);
+    }
+}
+
+
+void MainWidget::executeArcParsing()
+{
+
+
+    if (m_selectedInputDirLineEdit->text().length() == 0 ||
+        m_selectedOutputDirLineEdit->text().length() == 0 ) {
+        m_msgDialog->setText("Select file to parse and the output directory first");
+        m_msgDialog->show();
+        return;
+    }
+
+    std::string filename = m_selectedInputDirLineEdit->text().toStdString();
+    std::string outputDir = m_selectedOutputDirLineEdit->text().toStdString();
+
+
+    auto outputFilePath = QDir(QString(outputDir.c_str())).absoluteFilePath("channel_all.csv");
+
+    int successfullyParsed = parsearc(filename, outputFilePath.toStdString());
+
+    if (successfullyParsed != 0) {
+        m_msgDialog->setText("Sth went wrong during parsing! Please contact the developer");
+        m_msgDialog->show();
+        return;
+    }
+
+    m_msgDialog->setText("Successfully parsed and created chanell_all.csv file");
+    m_msgDialog->show();
+}
+
