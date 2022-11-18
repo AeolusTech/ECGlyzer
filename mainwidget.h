@@ -11,8 +11,8 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
-#include <QSlider>
 #include <QtWidgets/QToolButton>
+#include <QtWidgets/QScrollBar>
 #include <QtWidgets/QGraphicsWidget>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QFormLayout>
@@ -100,9 +100,7 @@ private:
 
     // Chart with a slider
     QGroupBox *m_chartModule;
-    QSlider *m_chartSlider;
-
-
+    QScrollBar *m_chartSlider;
 };
 
 #endif // MAINWIDGET_H

@@ -216,7 +216,6 @@ void MainWidget::createTrimCsvModule()
     m_trimCsvModule = new QGroupBox("Trim CSV");
     QVBoxLayout *vbox1 = new QVBoxLayout;
     m_trimCsvSlider = new RangeSlider(Qt::Horizontal);
-//    m_trimCsvSlider->setTickPosition(QSlider::TicksBelow);
     QBoxLayout *boxLayout = new QBoxLayout(QBoxLayout::LeftToRight);
     boxLayout->addWidget(m_trimCsvSlider);
     vbox1->addItem(boxLayout);
@@ -284,7 +283,7 @@ MainWidget::MainWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_mainLayout = new QGridLayout;
-    m_modulesLayout = new QVBoxLayout();
+    m_modulesLayout = new QVBoxLayout;
 
     createChartRelatedStuff();
     createMenuBar();
