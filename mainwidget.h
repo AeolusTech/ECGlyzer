@@ -21,6 +21,8 @@
 #include <QtWidgets/QGroupBox>
 #include <QtCharts/QLineSeries>
 #include <QtWidgets/QMenuBar>
+#include <QMessageBox>
+#include <QErrorMessage>>
 
 #include "rangeslider.h"
 
@@ -42,7 +44,7 @@ public slots:
 private slots:
     void handleMarkerClicked();
     void handleSelectDirClicked(QLineEdit *fieldToUpdate);
-
+    void handleSelectFileClicked(QLineEdit *fieldToUpdate);
 
 private:
     void createMenuBar();
@@ -52,6 +54,8 @@ private:
     void createTrimCsvModule();
     void createExportImageModule();
     void createExportPdfModule();
+
+    void executeArcParsing();
 
     // CHART
     QChart *m_chart;
@@ -101,6 +105,10 @@ private:
     // Chart with a slider
     QGroupBox *m_chartModule;
     QScrollBar *m_chartSlider;
+
+    // Random Dialog Boxes to communicate with the user
+    QErrorMessage *m_errorDialog;
+    QMessageBox *m_msgDialog;
 };
 
 #endif // MAINWIDGET_H
