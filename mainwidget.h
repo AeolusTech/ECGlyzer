@@ -8,8 +8,11 @@
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QToolButton>
+#include <QtWidgets/QScrollBar>
 #include <QtWidgets/QGraphicsWidget>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QFormLayout>
@@ -18,6 +21,8 @@
 #include <QtWidgets/QGroupBox>
 #include <QtCharts/QLineSeries>
 #include <QtWidgets/QMenuBar>
+
+#include "rangeslider.h"
 
 QT_USE_NAMESPACE
 
@@ -33,17 +38,20 @@ public slots:
     void connectMarkers();
     void disconnectMarkers();
 
-    void handleMarkerClicked();
-    void handleSelectDirClicked(QTextEdit *fieldToUpdate);
 
 private slots:
-    void createMenuBar();
-    void createChartRelatedStuff();
+    void handleMarkerClicked();
+    void handleSelectDirClicked(QLineEdit *fieldToUpdate);
 
-    void createParseArcModule();
 
 private:
-
+    void createMenuBar();
+    void createChartRelatedStuff();
+    void createParseArcModule();
+    void createAnalyzeCompareCsvModule();
+    void createTrimCsvModule();
+    void createExportImageModule();
+    void createExportPdfModule();
 
     // CHART
     QChart *m_chart;
@@ -57,20 +65,42 @@ private:
 
     // Arc Parse module
     QPushButton *m_selectInputDirPushButton;
-    QTextEdit *m_selectedInputDirTextEdit;
+    QLineEdit *m_selectedInputDirLineEdit;
     QPushButton *m_selectOutputDirPushButton;
-    QTextEdit *m_selectedOutputDirTextEdit;
-    QGroupBox *m_parseArcDatModule;
+    QLineEdit *m_selectedOutputDirLineEdit;
     QFormLayout *m_parseArcDatLayout;
     QVBoxLayout *m_parseArcDatVBoxLayout;
+    QPushButton *m_parseArcDatExecutePushButton;
+    QGroupBox *m_parseArcDatModule;
 
+    // Analyzer Compare CSV module
+    QPushButton *m_selectInputDirCsvPushButton;
+    QLineEdit *m_selectedInputDirCsvLineEdit;
+    QPushButton *m_selectOutputDirCsvPushButton;
+    QLineEdit *m_selectedOutputDirCsvLineEdit;
+    QFormLayout *m_analyzeCompareCsvLayout;
+    QVBoxLayout *m_analyzeCompareCsvVBoxLayout;
+    QPushButton *m_analyzeCompareCsvExecutePushButton;
     QGroupBox *m_analyzeCompareCsvModule;
+
+    // Trim CSV module
     QGroupBox *m_trimCsvModule;
+    RangeSlider *m_trimCsvSlider;
+
+    // Export image
     QGroupBox *m_exportImageModule;
+    QToolButton *m_svgOrJpgToolButton;
+    QLineEdit *m_exportImageOutputFilename;
+    QPushButton *m_exportImagePushButton;
+
+    // Export PDF
     QGroupBox *m_exportPdfModule;
+    QLineEdit *m_exportPdfOutputFilename;
+    QPushButton *m_exportPdfPushButton;
+
+    // Chart with a slider
     QGroupBox *m_chartModule;
-
-
+    QScrollBar *m_chartSlider;
 };
 
 #endif // MAINWIDGET_H

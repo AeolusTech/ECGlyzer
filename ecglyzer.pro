@@ -1,11 +1,13 @@
 QT += charts widgets
 
 HEADERS += \
-    mainwidget.h
+    mainwidget.h \
+    rangeslider.h
 
 SOURCES += \
     main.cpp \
-    mainwidget.cpp
+    mainwidget.cpp \
+    rangeslider.cpp
 
 DISTFILES += \
     .gitignore
