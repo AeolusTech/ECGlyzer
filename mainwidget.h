@@ -12,6 +12,7 @@
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
 #include <QSlider>
+#include <QtWidgets/QToolButton>
 #include <QtWidgets/QGraphicsWidget>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QFormLayout>
@@ -40,14 +41,15 @@ private slots:
     void handleMarkerClicked();
     void handleSelectDirClicked(QTextEdit *fieldToUpdate);
 
-    void createAnalyzeCompareCsvModule();
-
-    void createTrimCsvModule();
 
 private:
     void createMenuBar();
     void createChartRelatedStuff();
     void createParseArcModule();
+    void createAnalyzeCompareCsvModule();
+    void createTrimCsvModule();
+    void createExportImageModule();
+    void createExportPdfModule();
 
     // CHART
     QChart *m_chart;
@@ -83,10 +85,20 @@ private:
     QGroupBox *m_trimCsvModule;
     QSlider *m_trimCsvSlider;
 
-
+    // Export image
     QGroupBox *m_exportImageModule;
+    QToolButton *m_svgOrJpgToolButton;
+    QTextEdit *m_exportImageOutputFilename;
+    QPushButton *m_exportImagePushButton;
+
+    // Export PDF
     QGroupBox *m_exportPdfModule;
+    QTextEdit *m_exportPdfOutputFilename;
+    QPushButton *m_exportPdfPushButton;
+
+    // Chart with a slider
     QGroupBox *m_chartModule;
+    QSlider *m_chartSlider;
 
 
 };

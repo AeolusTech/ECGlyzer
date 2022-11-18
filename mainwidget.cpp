@@ -244,6 +244,36 @@ void MainWidget::createTrimCsvModule()
     m_trimCsvModule->setLayout(vbox1);
 }
 
+void MainWidget::createExportImageModule()
+{
+    m_exportImageModule = new QGroupBox("Export image");
+    QFormLayout *formLayout = new QFormLayout;
+
+    QMenu* menu = new QMenu;
+    menu->addAction(tr("svg"));
+    menu->addAction(tr("jpg"));
+    m_svgOrJpgToolButton = new QToolButton;
+    m_svgOrJpgToolButton->setMenu(menu);
+    formLayout->addRow(m_svgOrJpgToolButton, new QTextEdit("Select Image format"));
+
+    m_exportImageOutputFilename = new QTextEdit("");
+    m_exportImageOutputFilename->setReadOnly(true);
+    m_exportPdfPushButton = new QPushButton("Export Image");
+    formLayout->addRow(m_exportImageOutputFilename, m_exportImageOutputFilename);
+    m_exportImageModule->setLayout(formLayout);
+}
+
+void MainWidget::createExportPdfModule()
+{
+    m_exportPdfModule = new QGroupBox("Export PDF");
+    QFormLayout *formLayout = new QFormLayout;
+    m_exportPdfOutputFilename = new QTextEdit("");
+    m_exportPdfOutputFilename->setReadOnly(true);
+    m_exportPdfPushButton = new QPushButton("Export PDF");
+    formLayout->addRow(m_selectedInputDirCsvTextEdit, m_exportPdfPushButton);
+    m_exportPdfModule->setLayout(formLayout);
+}
+
 MainWidget::MainWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -255,10 +285,14 @@ MainWidget::MainWidget(QWidget *parent) :
     createParseArcModule();
     createAnalyzeCompareCsvModule();
     createTrimCsvModule();
+    createExportImageModule();
+    createExportPdfModule();
 
     m_modulesLayout->addWidget(m_parseArcDatModule);
     m_modulesLayout->addWidget(m_analyzeCompareCsvModule);
     m_modulesLayout->addWidget(m_trimCsvModule);
+    m_modulesLayout->addWidget(m_exportImageModule);
+    m_modulesLayout->addWidget(m_exportPdfModule);
     m_mainLayout->addLayout(m_modulesLayout, 0, 0);
 
 
