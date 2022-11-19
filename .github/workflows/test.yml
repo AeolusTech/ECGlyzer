@@ -3,6 +3,10 @@ name: CI
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
   test:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -11,7 +15,6 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-20.04
-          - ubuntu-18.04
           - windows-2022
           - windows-2019
           - macos-11
@@ -22,10 +25,6 @@ jobs:
           - cached
           - uncached
 
-        # Ubuntu 18 is not a supported target for Qt 6: https://www.qt.io/blog/qt6-development-hosts-and-targets
-        exclude:
-          - os: ubuntu-18.04
-            version: "6.4.1"
     steps:
       - name: Install Qt6 with options
         if: startsWith(matrix.version, '6.4')
