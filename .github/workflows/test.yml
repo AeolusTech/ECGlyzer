@@ -1,12 +1,8 @@
 name: CI
 
-on: [push, pull_request, workflow_dispatch]
+on: [pull_request, workflow_dispatch]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
   test:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -35,6 +31,7 @@ jobs:
           version: ${{ matrix.version }}
           tools: tools_ifw tools_qtcreator,qt.tools.qtcreator
           cache: ${{ matrix.cache == 'cached' }}
+          Default: ${{ github.repository }}
 
       - name: Configure test project on windows
         if: startsWith(matrix.os, 'windows')
