@@ -19,7 +19,7 @@ QT_USE_NAMESPACE
 
 namespace {
 
-std::array<std::string, MainWidget::noOfChannels> channelNames = {"I @", "II", "III", "aVR", "AVL", "aVF", "Va", "V2", "V3", "V4", "V5", "V6", "All"};
+std::array<std::string, MainWidget::noOfChannels> channelNames = {"I @", "II", "III", "aVR", "aVL", "aVF", "V1", "V2", "V3", "V4", "V5", "V6", "All"};
 }
 
 
@@ -357,7 +357,7 @@ void MainWidget::handleMarkerClicked()
 
 void MainWidget::handleSelectDirClicked(QLineEdit *fieldToUpdate)
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Select dir"),"/Users/kkc/private-repos/holter/example-files");
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select dir"),"/Users/kkc/private-repos/holter/package");
     if (dir.length() != 0) {
         fieldToUpdate->clear();
         fieldToUpdate->setText(dir);
@@ -367,7 +367,7 @@ void MainWidget::handleSelectDirClicked(QLineEdit *fieldToUpdate)
 
 void MainWidget::handleSelectFileClicked(QLineEdit *fieldToUpdate, const QString& fileFilter)
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/Users/kkc/private-repos/holter/example-files", fileFilter);
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/Users/kkc/private-repos/holter/package", fileFilter);
     if (fileName.length() != 0) {
         fieldToUpdate->clear();
         fieldToUpdate->setText(fileName);
@@ -416,12 +416,12 @@ void MainWidget::addCsvToChar()
 
 
     try {
-        rapidcsv::Document doc(filename, rapidcsv::LabelParams(0,-1), rapidcsv::SeparatorParams(';'));
-
         std::vector<std::string> checkedChannels;
 
         if (m_pushButtonsCsvModule["All"]->isChecked()) {
-            checkedChannels = doc.GetColumnNames();
+            for (unsigned i = 0; i < channelNames.size() - 1; i++)
+                checkedChannels.push_back(channelNames[i]);
+
             std::remove_if(checkedChannels.begin(), checkedChannels.end(), [=](const std::string& name) {return name == "Time";});
             checkedChannels.pop_back();
         } else {
@@ -437,6 +437,7 @@ void MainWidget::addCsvToChar()
             m_msgDialog->show();
             return;
         }
+        rapidcsv::Document doc(filename, rapidcsv::LabelParams(0,-1), rapidcsv::SeparatorParams(';'));
         clearChart();
 
         std::vector<float> dataX = doc.GetColumn<float>("Time");
