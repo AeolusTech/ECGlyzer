@@ -36,8 +36,6 @@ void MainWidget::createChartRelatedStuff()
     m_chartView->setRenderHint(QPainter::Antialiasing);
 
     m_mainLayout->addWidget(m_chartView, 0, 1, 3, 1);
-
-    connectMarkers();
 }
 
 void MainWidget::createMenuBar()
@@ -288,7 +286,6 @@ void MainWidget::removeSeries(const std::string& chartName)
 
 void MainWidget::connectMarkers()
 {
-//![1]
     // Connect all markers to handler
     const auto markers = m_chart->legend()->markers();
     for (QLegendMarker *marker : markers) {
@@ -297,45 +294,34 @@ void MainWidget::connectMarkers()
                             this, &MainWidget::handleMarkerClicked);
         QObject::connect(marker, &QLegendMarker::clicked, this, &MainWidget::handleMarkerClicked);
     }
-//![1]
 }
 
 void MainWidget::disconnectMarkers()
 {
-//![2]
     const auto markers = m_chart->legend()->markers();
     for (QLegendMarker *marker : markers) {
         QObject::disconnect(marker, &QLegendMarker::clicked,
                             this, &MainWidget::handleMarkerClicked);
     }
-//![2]
 }
 
 void MainWidget::handleMarkerClicked()
 {
-//![3]
     QLegendMarker* marker = qobject_cast<QLegendMarker*> (sender());
     Q_ASSERT(marker);
-//![3]
 
-//![4]
     switch (marker->type())
-//![4]
     {
     case QLegendMarker::LegendMarkerTypeXY:
-        {
-//![5]
+    {
         // Toggle visibility of series
         marker->series()->setVisible(!marker->series()->isVisible());
 
         // Turn legend marker back to visible, since hiding series also hides the marker
         // and we don't want it to happen now.
         marker->setVisible(true);
-//![5]
 
-//![6]
-        // Dim the marker, if series is not visible
-        qreal alpha = 1.0;
+        qreal alpha = 1.0; // Dim the marker, if series is not visible
 
         if (!marker->series()->isVisible())
             alpha = 0.5;
@@ -359,14 +345,13 @@ void MainWidget::handleMarkerClicked()
         pen.setColor(color);
         marker->setPen(pen);
 
-//![6]
         break;
-        }
+    }
     default:
-        {
+    {
         qDebug() << "Unknown marker type";
         break;
-        }
+    }
     }
 }
 
@@ -395,7 +380,7 @@ void MainWidget::executeArcParsing()
 
 
     if (m_selectedInputDirLineEdit->text().length() == 0 ||
-        m_selectedOutputDirLineEdit->text().length() == 0 ) {
+            m_selectedOutputDirLineEdit->text().length() == 0 ) {
         m_msgDialog->setText("Select file to parse and the output directory first");
         m_msgDialog->show();
         return;
@@ -437,6 +422,8 @@ void MainWidget::addCsvToChar()
 
         if (m_pushButtonsCsvModule["All"]->isChecked()) {
             checkedChannels = doc.GetColumnNames();
+            std::remove_if(checkedChannels.begin(), checkedChannels.end(), [=](const std::string& name) {return name == "Time";});
+            checkedChannels.pop_back();
         } else {
             for (const auto& [channelName, button]: m_pushButtonsCsvModule) {
                 if (button->isChecked()) {
@@ -459,6 +446,7 @@ void MainWidget::addCsvToChar()
             addCustomSeries(dataX, doc.GetColumn<float>(checkedChannel), checkedChannel);
         }
 
+        connectMarkers();
 
         m_msgDialog->setText("Successfully parsed and created chanell_all.csv file");
         m_msgDialog->show();
