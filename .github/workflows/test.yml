@@ -3,24 +3,6 @@ name: CI
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: npm
-          cache-dependency-path: action/
-
-      - run: |
-          cd action
-          npm ci || npm install
-        shell: bash
-      - run: |
-          cd action
-          npm run lint
   test:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -45,21 +27,6 @@ jobs:
           - os: ubuntu-18.04
             version: "6.4.1"
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: npm
-          cache-dependency-path: action/
-
-      - run: |
-          cd action
-          npm ci || npm install
-        shell: bash
-      - run: |
-          cd action
-          npm run build
       - name: Install Qt6 with options
         if: startsWith(matrix.version, '6.4')
         uses: ./
