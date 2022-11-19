@@ -4,6 +4,8 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
+#include <array>
+#include <map>
 #include <vector>
 
 #include <QtCharts/QChartGlobal>
@@ -24,6 +26,7 @@
 #include <QtCharts/QLineSeries>
 #include <QtWidgets/QMenuBar>
 #include <QMessageBox>
+#include <QMap>
 #include <QErrorMessage>
 
 #include "rangeslider.h"
@@ -36,12 +39,13 @@ class MainWidget : public QWidget
 public:
     explicit MainWidget(QWidget *parent = 0);
 
+    // consts
+    static const unsigned noOfChannels = 13u;
+
 public slots:
-    void addSeries();
-    void removeSeries();
+    void removeSeries(const std::string& chartName);
     void connectMarkers();
     void disconnectMarkers();
-
 
 private slots:
     void handleMarkerClicked();
@@ -59,11 +63,12 @@ private:
 
     void executeArcParsing();
     void addCsvToChar();
-    void addCustomSeries(const std::vector<float>& dataX, const std::vector<float>& dataY);
+    void addCustomSeries(const std::vector<float>& dataX, const std::vector<float>& dataY, const std::string& chartName);
+    void clearChart();
 
     // CHART
     QChart *m_chart;
-    QList<QLineSeries *> m_series;
+    QMap<std::string, QLineSeries *> m_series;
 
     // General
     QMenuBar *m_menuBar;
@@ -80,6 +85,8 @@ private:
     QVBoxLayout *m_parseArcDatVBoxLayout;
     QPushButton *m_parseArcDatExecutePushButton;
     QGroupBox *m_parseArcDatModule;
+    std::map<std::string, QPushButton*> m_pushButtonsArcModule;
+
 
     // Analyzer Compare CSV module
     QPushButton *m_selectInputDirCsvPushButton;
@@ -90,6 +97,7 @@ private:
     QVBoxLayout *m_analyzeCompareCsvVBoxLayout;
     QPushButton *m_analyzeCompareCsvExecutePushButton;
     QGroupBox *m_analyzeCompareCsvModule;
+    std::map<std::string, QPushButton*> m_pushButtonsCsvModule;
 
     // Trim CSV module
     QGroupBox *m_trimCsvModule;

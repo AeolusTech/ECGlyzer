@@ -1,6 +1,3 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
-
 #include "mainwidget.h"
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
@@ -19,6 +16,12 @@
 #include "rapidcsv.h"
 
 QT_USE_NAMESPACE
+
+namespace {
+
+std::array<std::string, MainWidget::noOfChannels> channelNames = {"I @", "II", "III", "aVR", "AVL", "aVF", "Va", "V2", "V3", "V4", "V5", "V6", "All"};
+}
+
 
 void MainWidget::createChartRelatedStuff()
 {
@@ -81,45 +84,17 @@ void MainWidget::createParseArcModule()
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
 
     buttonsLayout->addWidget(new QLabel("Channels"));
-    QPushButton *buttonI = new QPushButton("I");
-    buttonsLayout->addWidget(buttonI);
 
-    QPushButton *buttonII = new QPushButton("II");
-    buttonsLayout->addWidget(buttonII);
+    for (const auto& channelName: channelNames) {
+        QPushButton *button = new QPushButton(channelName.c_str());
+        button->setCheckable(true);
+        if (channelName == "All") {
+            buttonsLayout->addSpacing(10);
+        }
+        buttonsLayout->addWidget(button);
 
-    QPushButton *buttonIII = new QPushButton("III");
-    buttonsLayout->addWidget(buttonIII);
-
-    QPushButton *buttonaVr = new QPushButton("aVR");
-    buttonsLayout->addWidget(buttonaVr);
-
-    QPushButton *buttonAVL = new QPushButton("AVL");
-    buttonsLayout->addWidget(buttonAVL);
-
-    QPushButton *buttonaVF = new QPushButton("aVF");
-    buttonsLayout->addWidget(buttonaVF);
-
-    QPushButton *buttonVa = new QPushButton("Va");
-    buttonsLayout->addWidget(buttonVa);
-
-    QPushButton *buttonV2 = new QPushButton("V2");
-    buttonsLayout->addWidget(buttonV2);
-
-    QPushButton *buttonV3 = new QPushButton("V3");
-    buttonsLayout->addWidget(buttonV3);
-
-    QPushButton *buttonV4 = new QPushButton("V4");
-    buttonsLayout->addWidget(buttonV4);
-
-    QPushButton *buttonV5 = new QPushButton("V5");
-    buttonsLayout->addWidget(buttonV5);
-
-    QPushButton *buttonV6 = new QPushButton("V6");
-    buttonsLayout->addWidget(buttonV6);
-
-    QPushButton *buttonAll = new QPushButton("All");
-    buttonsLayout->addSpacing(10);
-    buttonsLayout->addWidget(buttonAll);
+        m_pushButtonsArcModule[channelName] = button;
+    }
 
     m_parseArcDatVBoxLayout->addItem(buttonsLayout);
 
@@ -165,45 +140,15 @@ void MainWidget::createAnalyzeCompareCsvModule()
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
 
     buttonsLayout->addWidget(new QLabel("Channels"));
-    QPushButton *buttonI = new QPushButton("I");
-    buttonsLayout->addWidget(buttonI);
-
-    QPushButton *buttonII = new QPushButton("II");
-    buttonsLayout->addWidget(buttonII);
-
-    QPushButton *buttonIII = new QPushButton("III");
-    buttonsLayout->addWidget(buttonIII);
-
-    QPushButton *buttonaVr = new QPushButton("aVR");
-    buttonsLayout->addWidget(buttonaVr);
-
-    QPushButton *buttonAVL = new QPushButton("AVL");
-    buttonsLayout->addWidget(buttonAVL);
-
-    QPushButton *buttonaVF = new QPushButton("aVF");
-    buttonsLayout->addWidget(buttonaVF);
-
-    QPushButton *buttonVa = new QPushButton("Va");
-    buttonsLayout->addWidget(buttonVa);
-
-    QPushButton *buttonV2 = new QPushButton("V2");
-    buttonsLayout->addWidget(buttonV2);
-
-    QPushButton *buttonV3 = new QPushButton("V3");
-    buttonsLayout->addWidget(buttonV3);
-
-    QPushButton *buttonV4 = new QPushButton("V4");
-    buttonsLayout->addWidget(buttonV4);
-
-    QPushButton *buttonV5 = new QPushButton("V5");
-    buttonsLayout->addWidget(buttonV5);
-
-    QPushButton *buttonV6 = new QPushButton("V6");
-    buttonsLayout->addWidget(buttonV6);
-
-    QPushButton *buttonAll = new QPushButton("All");
-    buttonsLayout->addSpacing(10);
-    buttonsLayout->addWidget(buttonAll);
+    for (const auto& channelName: channelNames) {
+        QPushButton *button = new QPushButton(channelName.c_str());
+        button->setCheckable(true);
+        if (channelName == "All") {
+            buttonsLayout->addSpacing(10);
+        }
+        buttonsLayout->addWidget(button);
+        m_pushButtonsCsvModule[channelName] = button;
+    }
 
     m_analyzeCompareCsvVBoxLayout->addItem(buttonsLayout);
 
@@ -221,12 +166,12 @@ void MainWidget::createTrimCsvModule()
 
 
     QHBoxLayout *hbox1 = new QHBoxLayout;
-    QLineEdit *te1 = new QLineEdit;
-    QLineEdit *te2 = new QLineEdit;
+    QLineEdit *le1 = new QLineEdit;
+    QLineEdit *le2 = new QLineEdit;
     hbox1->addSpacing(100);
-    hbox1->addWidget(te1);
+    hbox1->addWidget(le1);
     hbox1->addSpacing(100);
-    hbox1->addWidget(te2);
+    hbox1->addWidget(le2);
     hbox1->addSpacing(100);
 
     QHBoxLayout *hbox2 = new QHBoxLayout;
@@ -305,34 +250,13 @@ MainWidget::MainWidget(QWidget *parent) :
     setLayout(m_mainLayout);
 }
 
-void MainWidget::addSeries()
+
+void MainWidget::addCustomSeries(const std::vector<float>& dataX, const std::vector<float>& dataY, const std::string& chartName)
 {
     QLineSeries *series = new QLineSeries();
-    m_series.append(series);
+    m_series[chartName] = series;
 
-    series->setName(QString("line " + QString::number(m_series.count())));
-
-    // Make some sine wave for data
-    QList<QPointF> data;
-    int offset = m_chart->series().count();
-    for (int i = 0; i < 360; i++) {
-        qreal x = offset * 20 + i;
-        data.append(QPointF(i, qSin(qDegreesToRadians(x))));
-    }
-
-    series->append(data);
-    m_chart->addSeries(series);
-
-    if (m_series.count() == 1)
-        m_chart->createDefaultAxes();
-}
-
-void MainWidget::addCustomSeries(const std::vector<float>& dataX, const std::vector<float>& dataY)
-{
-    QLineSeries *series = new QLineSeries();
-    m_series.append(series);
-
-    series->setName(QString("line " + QString::number(m_series.count())));
+    series->setName(chartName.c_str());
 
     QList<QPointF> data;
     for (unsigned i = 0; i < dataX.size(); i++) {
@@ -342,17 +266,22 @@ void MainWidget::addCustomSeries(const std::vector<float>& dataX, const std::vec
     series->append(data);
     m_chart->addSeries(series);
 
-    if (m_series.count() == 1)
+    if (m_series.size() == 1)
         m_chart->createDefaultAxes();
 }
 
-void MainWidget::removeSeries()
+void MainWidget::clearChart() {
+    for (const auto &chartElem: m_series.keys()) {
+        removeSeries(chartElem);
+    }
+}
+
+void MainWidget::removeSeries(const std::string& chartName)
 {
-    // Remove last series from chart
-    if (m_series.count() > 0) {
-        QLineSeries *series = m_series.last();
+    if (m_series.size() > 0) {
+        QLineSeries *series = m_series[chartName];
         m_chart->removeSeries(series);
-        m_series.removeLast();
+        m_series.remove(chartName);
         delete series;
     }
 }
@@ -503,16 +432,35 @@ void MainWidget::addCsvToChar()
 
     try {
         rapidcsv::Document doc(filename, rapidcsv::LabelParams(0,-1), rapidcsv::SeparatorParams(';'));
-        std::vector<float> dataX = doc.GetColumn<float>("Time");
-        std::vector<float> dataY = doc.GetColumn<float>("II");
 
-        addCustomSeries(dataX, dataY);
+        std::vector<std::string> checkedChannels;
+        for (const auto& [channelName, button]: m_pushButtonsCsvModule) {
+            if (button->isChecked()) {
+                checkedChannels.push_back(channelName);
+            }
+        }
+
+        if (checkedChannels.empty()) {
+            m_msgDialog->setText("Select which channels you want to visualize first");
+            m_msgDialog->show();
+            return;
+        }
+        clearChart();
+
+        std::vector<float> dataX = doc.GetColumn<float>("Time");
+
+        for (const auto& checkedChannel: checkedChannels) {
+            addCustomSeries(dataX, doc.GetColumn<float>(checkedChannel), checkedChannel);
+        }
+
 
         m_msgDialog->setText("Successfully parsed and created chanell_all.csv file");
         m_msgDialog->show();
 
     } catch (const std::exception& e) {
-        m_msgDialog->setText(strcat("Error during CSV parsing!\n", e.what()));
+        std::string errorMessage = "Error during CSV parsing!\n";
+        errorMessage += std::string(e.what());
+        m_msgDialog->setText(errorMessage.c_str());
         m_msgDialog->show();
     }
 
