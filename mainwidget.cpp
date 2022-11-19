@@ -434,9 +434,14 @@ void MainWidget::addCsvToChar()
         rapidcsv::Document doc(filename, rapidcsv::LabelParams(0,-1), rapidcsv::SeparatorParams(';'));
 
         std::vector<std::string> checkedChannels;
-        for (const auto& [channelName, button]: m_pushButtonsCsvModule) {
-            if (button->isChecked()) {
-                checkedChannels.push_back(channelName);
+
+        if (m_pushButtonsCsvModule["All"]->isChecked()) {
+            checkedChannels = doc.GetColumnNames();
+        } else {
+            for (const auto& [channelName, button]: m_pushButtonsCsvModule) {
+                if (button->isChecked()) {
+                    checkedChannels.push_back(channelName);
+                }
             }
         }
 
@@ -448,6 +453,7 @@ void MainWidget::addCsvToChar()
         clearChart();
 
         std::vector<float> dataX = doc.GetColumn<float>("Time");
+
 
         for (const auto& checkedChannel: checkedChannels) {
             addCustomSeries(dataX, doc.GetColumn<float>(checkedChannel), checkedChannel);
