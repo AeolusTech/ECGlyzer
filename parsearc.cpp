@@ -71,6 +71,7 @@ void CleanPrint(int,int);
 void ReadString(FILE *,char *,int *,int);
 void SkipTo(FILE *,int *,int);
 void LogFile(FILE *,char *,char *,int,char);
+char *TrimWhitespaces(char *str);
 
 
 int parsearc(const std::string& filename, const std::string& outputFilePath) {
@@ -236,7 +237,7 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
     for (j=0;j<nchannels;j++) {
         ReadString(fin,s,&nptr,8);
         LogFile(flog,"Electrode name:",s,0,'s');
-        strcpy(channels[j].name,s);
+        strcpy(channels[j].name, TrimWhitespaces(s));
     }
     if (debug)
         fprintf(stderr,"\n--- Offset %d ---\n",nptr);
@@ -523,30 +524,22 @@ void LogFile(FILE *fptr,char *s1,char *s2,int a,char datatype)
 }
 
 
+char *TrimWhitespaces(char *str)
+{
+  char *end;
 
-//int main(int argc,char **argv)
-//{
+  // Trim leading space
+  while(isspace((unsigned char)*str)) str++;
 
-//    // Deal with the command line
-//    if (argc < 2) {
-//        fprintf(stderr,"Usage: %s [options] arcfilename\n",argv[0]);
-//        fprintf(stderr,"Options:\n");
-//        fprintf(stderr,"   -s   Save ECG channels as separate files, default: off\n");
-//        fprintf(stderr,"   -v   Enable verbose mode, default: off\n");
-//        fprintf(stderr,"   -d   Enable debug mode, default: off\n");
-//        exit(-1);
-//    }
-//    for (int i=1;i<argc;i++) {
-//        if (strcmp(argv[i],"-v") == 0) {
-//            verbose = TRUE;
-//        }
-//        if (strcmp(argv[i],"-s") == 0) {
-//            savesingle = TRUE;
-//        }
-//        if (strcmp(argv[i],"-d") == 0) {
-//            debug = TRUE;
-//            verbose = TRUE;
-//        }
-//    }
-//    return parsearc(argv[argc-1]);
-//}
+  if(*str == 0)  // All spaces?
+    return str;
+
+  // Trim trailing space
+  end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
+
+  // Write new null terminator character
+  end[1] = '\0';
+
+  return str;
+}
