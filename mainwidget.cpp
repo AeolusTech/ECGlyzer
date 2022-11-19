@@ -16,6 +16,7 @@
 #include <QtCore/QtMath>
 
 #include "parsearc.h"
+#include "rapidcsv.h"
 
 QT_USE_NAMESPACE
 
@@ -25,20 +26,13 @@ void MainWidget::createChartRelatedStuff()
     m_chartView = new QChartView(m_chart, this);
 
     // Set the title and show legend
-    m_chart->setTitle("Legendmarker example (click on legend)");
+    m_chart->setTitle("ECG chart (click on legend to hide/show signals)");
     m_chart->legend()->setVisible(true);
     m_chart->legend()->setAlignment(Qt::AlignBottom);
 
     m_chartView->setRenderHint(QPainter::Antialiasing);
 
     m_mainLayout->addWidget(m_chartView, 0, 1, 3, 1);
-
-
-    // Add few series
-    addSeries();
-    addSeries();
-    addSeries();
-    addSeries();
 
     connectMarkers();
 }
@@ -64,7 +58,7 @@ void MainWidget::createParseArcModule()
     m_selectedInputDirLineEdit->setReadOnly(true);
     m_selectInputDirPushButton = new QPushButton("Input file");
     QObject::connect(m_selectInputDirPushButton, &QPushButton::clicked, this,
-                     [=]() { this->handleSelectFileClicked(m_selectedInputDirLineEdit); });
+                     [=]() { this->handleSelectFileClicked(m_selectedInputDirLineEdit, tr("ARC File (*.arc)")); });
     m_parseArcDatLayout->addRow(m_selectedInputDirLineEdit, m_selectInputDirPushButton);
 
     m_selectedOutputDirLineEdit = new QLineEdit("");
@@ -141,9 +135,9 @@ void MainWidget::createAnalyzeCompareCsvModule()
 
     m_selectedInputDirCsvLineEdit = new QLineEdit("");
     m_selectedInputDirCsvLineEdit->setReadOnly(true);
-    m_selectInputDirCsvPushButton = new QPushButton("Input directory");
+    m_selectInputDirCsvPushButton = new QPushButton("Input csv");
     QObject::connect(m_selectInputDirCsvPushButton, &QPushButton::clicked, this,
-                     [=]() { this->handleSelectDirClicked(m_selectedInputDirCsvLineEdit); });
+                     [=]() { this->handleSelectFileClicked(m_selectedInputDirCsvLineEdit, tr("CSV File (*.csv)")); });
     m_analyzeCompareCsvLayout->addRow(m_selectedInputDirCsvLineEdit, m_selectInputDirCsvPushButton);
 
     m_selectedOutputDirCsvLineEdit = new QLineEdit("");
@@ -154,7 +148,7 @@ void MainWidget::createAnalyzeCompareCsvModule()
     m_analyzeCompareCsvLayout->addRow(m_selectedOutputDirCsvLineEdit, m_selectOutputDirCsvPushButton);
 
     m_analyzeCompareCsvExecutePushButton = new QPushButton("Parse");
-
+    QObject::connect(m_analyzeCompareCsvExecutePushButton, &QPushButton::clicked, this, &MainWidget::addCsvToChar);
 
     QVBoxLayout *vbox1 = new QVBoxLayout;
     QPushButton *btn1 = new QPushButton("E");
@@ -333,6 +327,25 @@ void MainWidget::addSeries()
         m_chart->createDefaultAxes();
 }
 
+void MainWidget::addCustomSeries(const std::vector<float>& dataX, const std::vector<float>& dataY)
+{
+    QLineSeries *series = new QLineSeries();
+    m_series.append(series);
+
+    series->setName(QString("line " + QString::number(m_series.count())));
+
+    QList<QPointF> data;
+    for (unsigned i = 0; i < dataX.size(); i++) {
+        data.append(QPointF(dataX[i], dataY[i]));
+    }
+
+    series->append(data);
+    m_chart->addSeries(series);
+
+    if (m_series.count() == 1)
+        m_chart->createDefaultAxes();
+}
+
 void MainWidget::removeSeries()
 {
     // Remove last series from chart
@@ -438,9 +451,9 @@ void MainWidget::handleSelectDirClicked(QLineEdit *fieldToUpdate)
 
 }
 
-void MainWidget::handleSelectFileClicked(QLineEdit *fieldToUpdate)
+void MainWidget::handleSelectFileClicked(QLineEdit *fieldToUpdate, const QString& fileFilter)
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/Users/kkc/private-repos/holter/example-files",tr("ARC File (*.arc)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/Users/kkc/private-repos/holter/example-files", fileFilter);
     if (fileName.length() != 0) {
         fieldToUpdate->clear();
         fieldToUpdate->setText(fileName);
@@ -475,5 +488,33 @@ void MainWidget::executeArcParsing()
 
     m_msgDialog->setText("Successfully parsed and created chanell_all.csv file");
     m_msgDialog->show();
+}
+
+void MainWidget::addCsvToChar()
+{
+    if (m_selectedInputDirCsvLineEdit->text().length() == 0) {
+        m_msgDialog->setText("Select file to ingest first");
+        m_msgDialog->show();
+        return;
+    }
+
+    std::string filename = m_selectedInputDirCsvLineEdit->text().toStdString();
+
+
+    try {
+        rapidcsv::Document doc(filename, rapidcsv::LabelParams(0,-1), rapidcsv::SeparatorParams(';'));
+        std::vector<float> dataX = doc.GetColumn<float>("Time");
+        std::vector<float> dataY = doc.GetColumn<float>("II");
+
+        addCustomSeries(dataX, dataY);
+
+        m_msgDialog->setText("Successfully parsed and created chanell_all.csv file");
+        m_msgDialog->show();
+
+    } catch (const std::exception& e) {
+        m_msgDialog->setText(strcat("Error during CSV parsing!\n", e.what()));
+        m_msgDialog->show();
+    }
+
 }
 

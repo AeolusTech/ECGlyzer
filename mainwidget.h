@@ -4,6 +4,8 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
+#include <vector>
+
 #include <QtCharts/QChartGlobal>
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
@@ -22,7 +24,7 @@
 #include <QtCharts/QLineSeries>
 #include <QtWidgets/QMenuBar>
 #include <QMessageBox>
-#include <QErrorMessage>>
+#include <QErrorMessage>
 
 #include "rangeslider.h"
 
@@ -44,7 +46,7 @@ public slots:
 private slots:
     void handleMarkerClicked();
     void handleSelectDirClicked(QLineEdit *fieldToUpdate);
-    void handleSelectFileClicked(QLineEdit *fieldToUpdate);
+    void handleSelectFileClicked(QLineEdit *fieldToUpdate, const QString& fileFilter);
 
 private:
     void createMenuBar();
@@ -56,6 +58,8 @@ private:
     void createExportPdfModule();
 
     void executeArcParsing();
+    void addCsvToChar();
+    void addCustomSeries(const std::vector<float>& dataX, const std::vector<float>& dataY);
 
     // CHART
     QChart *m_chart;

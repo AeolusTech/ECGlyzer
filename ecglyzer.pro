@@ -3,7 +3,8 @@ QT += charts widgets core
 HEADERS += \
     mainwidget.h \
     parsearc.h \
-    rangeslider.h
+    rangeslider.h \
+    rapidcsv.h
 
 SOURCES += \
     main.cpp \
