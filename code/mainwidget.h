@@ -29,7 +29,7 @@
 #include <QMap>
 #include <QErrorMessage>
 
-#include "rangeslider.h"
+#include "../imported/rangeslider.h"
 
 QT_USE_NAMESPACE
 
