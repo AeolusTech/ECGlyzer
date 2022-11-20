@@ -80,7 +80,7 @@ jobs:
         uses: ./
         with:
           # In Qt 6.2.0, qtwebengine requires qtpositioning and qtwebchannel
-          modules: qtwebengine qtpositioning qtwebchannel
+          modules: qtwebengine qtpositioning qtwebchannel qtcharts qtwidgets qtcore
           version: ${{ matrix.version }}
           tools: tools_ifw tools_qtcreator,qt.tools.qtcreator
           cache: ${{ matrix.cache == 'cached' }}
