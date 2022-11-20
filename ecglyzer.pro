@@ -1,16 +1,16 @@
 QT += charts widgets core
 
 HEADERS += \
-    mainwidget.h \
-    parsearc.h \
-    rangeslider.h \
-    rapidcsv.h
+    code/mainwidget.h \
+    imported/parsearc.h \
+    imported/rangeslider.h \
+    imported/rapidcsv.h
 
 SOURCES += \
-    main.cpp \
-    mainwidget.cpp \
-    parsearc.cpp \
-    rangeslider.cpp
+    code/main.cpp \
+    code/mainwidget.cpp \
+    imported/parsearc.cpp \
+    imported/rangeslider.cpp
 
 DISTFILES += \
     .gitignore

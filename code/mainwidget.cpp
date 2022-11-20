@@ -12,8 +12,8 @@
 #include <QtCharts/QXYLegendMarker>
 #include <QtCore/QtMath>
 
-#include "parsearc.h"
-#include "rapidcsv.h"
+#include "../imported/parsearc.h"
+#include "../imported/rapidcsv.h"
 
 QT_USE_NAMESPACE
 

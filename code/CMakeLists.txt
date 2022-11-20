@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(legendmarkers LANGUAGES CXX)
+project(ecglyzer LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -7,27 +7,29 @@ if(NOT DEFINED INSTALL_EXAMPLESDIR)
     set(INSTALL_EXAMPLESDIR "examples")
 endif()
 
-set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/charts/legendmarkers")
+set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/charts/ecglyzer")
 
 find_package(Qt6 REQUIRED COMPONENTS Charts Core Gui)
 
-qt_add_executable(legendmarkers
+qt_add_executable(ecglyzer
     main.cpp
     mainwidget.cpp mainwidget.h
 )
 
-set_target_properties(legendmarkers PROPERTIES
+set_target_properties(ecglyzer PROPERTIES
     WIN32_EXECUTABLE TRUE
     MACOSX_BUNDLE TRUE
 )
 
-target_link_libraries(legendmarkers PUBLIC
+include_directories("${CMAKE_SOURCE_DIR}/../imported")
+
+target_link_libraries(ecglyzer PUBLIC
     Qt::Charts
     Qt::Core
     Qt::Gui
 )
 
-install(TARGETS legendmarkers
+install(TARGETS ecglyzer
     RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}"
     BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}"
     LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}"
