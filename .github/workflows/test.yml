@@ -70,7 +70,7 @@ jobs:
         if: startsWith(matrix.version, '5')
         uses: ./
         with:
-          modules: qtwebengine qtcharts qtwidgets qtcore
+          modules: qtwebengine qtcharts
           version: ${{ matrix.version }}
           tools: tools_ifw tools_qtcreator,qt.tools.qtcreator
           cache: ${{ matrix.cache == 'cached' }}
@@ -80,7 +80,7 @@ jobs:
         uses: ./
         with:
           # In Qt 6.2.0, qtwebengine requires qtpositioning and qtwebchannel
-          modules: qtwebengine qtpositioning qtwebchannel qtcharts qtwidgets qtcore
+          modules: qtwebengine qtpositioning qtwebchannel qtcharts
           version: ${{ matrix.version }}
           tools: tools_ifw tools_qtcreator,qt.tools.qtcreator
           cache: ${{ matrix.cache == 'cached' }}
