@@ -120,7 +120,7 @@ jobs:
           cd code
           for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
           IF "%QT_VERSION:~0,1%"=="5" ( dir %Qt5_DIR%\lib\cmake ) ELSE ( dir %Qt6_DIR%\lib\cmake )
-          qmake
+          qmake ..
         shell: cmd
 
       - name: Configure project on unix
@@ -134,5 +134,5 @@ jobs:
           else
             ls "$Qt5_DIR/lib/cmake"
           fi
-          qmake
+          qmake ..
         shell: bash
