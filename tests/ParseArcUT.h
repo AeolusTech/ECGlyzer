@@ -1,7 +1,7 @@
 #include <QTest>
 
 
-class MyFirstTest: public QObject
+class ParseArcUT: public QObject
 {
     Q_OBJECT
 
@@ -34,3 +34,5 @@ private slots:
         qDebug("Called after myFirstTest and mySecondTest.");
     }
 };
+
+

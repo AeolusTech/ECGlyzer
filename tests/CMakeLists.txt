@@ -11,4 +11,4 @@ enable_testing(true)
 add_executable(unittests ArcParseUT.cpp)
 add_test(NAME unittests COMMAND unittests)
 
-target_link_libraries(unittests PRIVATE Qt::Test)
+target_link_libraries(unittests PRIVATE Qt::Test Qt::Main)

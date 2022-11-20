@@ -1,18 +1,18 @@
-QT       += core gui
-greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
+QT += core gui testlib widgets
+
+#greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = ECGlyzerUnitTests
 TEMPLATE = app
 
-CONFIG += console
-CONFIG += c++11
+CONFIG += console c++11 testcase no_testcase_installs
 
 SOURCES += \
-    ../imported/parsearc.cpp \
-    ParseArcUT.cpp
+    main.cpp
+#    ../imported/parsearc.cpp \
 
 HEADERS += \
-    ../imported/parsearc.h
+    ParseArcUT.h
 
 # INCLUDEPATH += \
 #     ../app \
