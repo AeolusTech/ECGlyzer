@@ -1,17 +1,7 @@
-QT += charts widgets core
+TEMPLATE = subdirs
 
-HEADERS += \
-    code/mainwidget.h \
-    imported/parsearc.h \
-    imported/rangeslider.h \
-    imported/rapidcsv.h
+CONFIG+=ordered
 
-SOURCES += \
-    code/main.cpp \
-    code/mainwidget.cpp \
-    imported/parsearc.cpp \
-    imported/rangeslider.cpp
-
-DISTFILES += \
-    .gitignore
-
+SUBDIRS = \
+    code \
+    tests
