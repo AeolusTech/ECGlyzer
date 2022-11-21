@@ -1,4 +1,5 @@
 #include "parsearc.h"
+#include <cstring>
 #include <string>
 #include <cstdio>
 #include <cstdlib>
