@@ -4,4 +4,5 @@ CONFIG+=ordered
 
 SUBDIRS = \
     code \
+    googletests \
     tests

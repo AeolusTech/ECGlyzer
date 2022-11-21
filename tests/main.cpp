@@ -1,5 +1,4 @@
-#include "ParseArcUT.h"
+#include "ParseArcUT.cpp"
+#include "ParseArcBenchmark.h"
 
 
-
-QTEST_MAIN(ParseArcUT);

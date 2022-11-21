@@ -8,14 +8,14 @@ TEMPLATE = app
 CONFIG += console c++11 testcase no_testcase_installs
 
 SOURCES += \
-    main.cpp
-#    ../imported/parsearc.cpp \
+    ParseArcUT.cpp \
+    ../imported/parsearc.cpp
 
 HEADERS += \
     ParseArcUT.h
 
-# INCLUDEPATH += \
-#     ../app \
+INCLUDEPATH += \
+    ../imported
 #     ../app/tools \
 #     ../app/commands \
 #     ../app/interfaces \
