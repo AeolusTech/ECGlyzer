@@ -4,7 +4,7 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG += thread
-CONFIG -= qt
+#CONFIG -= qt
 
 QMAKE_CXXFLAGS += -Wall -Wextra
 QMAKE_CFLAGS += -Wall -Wextra -Werror
@@ -17,12 +17,12 @@ QMAKE_CFLAGS += -Wall -Wextra -Werror
 DEFINES += INPUTDIR=\\\"$$PWD/input/\\\"
 
 HEADERS +=     ParseArcUT.h \
-#    ../app/myfunc.h \
+    $$PWD/../imported/parsearc.h \
 
 SOURCES +=   main.cpp  \
-#    ../app/myfunc.c
+    $$PWD/../imported/parsearc.cpp
 
-#INCLUDEPATH += ../app
+INCLUDEPATH += $$PWD/../imported
 
-DISTFILES += \
-    input/TestSTDOut_output.txt
+#DISTFILES += \
+#    input/TestSTDOut_output.txt
