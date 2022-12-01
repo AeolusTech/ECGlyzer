@@ -1,26 +1,28 @@
-QT += core gui testlib widgets
+include(gtest_dependency.pri)
 
-#greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
-
-TARGET = ECGlyzerUnitTests
 TEMPLATE = app
+CONFIG += console
+CONFIG -= app_bundle
+CONFIG += thread
+CONFIG -= qt
 
-CONFIG += console c++11 testcase no_testcase_installs
+QMAKE_CXXFLAGS += -Wall -Wextra
+QMAKE_CFLAGS += -Wall -Wextra -Werror
 
-SOURCES += \
-    ParseArcUT.cpp \
-    ../imported/parsearc.cpp
+# gcov
+#QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
+#QMAKE_CFLAGS += -fprofile-arcs -ftest-coverage
+#LIBS += -lgcov
 
-HEADERS += \
-    ParseArcUT.h
+DEFINES += INPUTDIR=\\\"$$PWD/input/\\\"
 
-INCLUDEPATH += \
-    ../imported
-#     ../app/tools \
-#     ../app/commands \
-#     ../app/interfaces \
-#     ../app/shapes \
-#     ../app/fileio \
-#     ../lib
+HEADERS +=     ParseArcUT.h \
+#    ../app/myfunc.h \
 
-DESTDIR = $$PWD/../build
+SOURCES +=   main.cpp  \
+#    ../app/myfunc.c
+
+#INCLUDEPATH += ../app
+
+DISTFILES += \
+    input/TestSTDOut_output.txt

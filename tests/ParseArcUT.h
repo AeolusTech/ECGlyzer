@@ -1,42 +1,11 @@
 #ifndef PARSEARCUT_H
 #define PARSEARCUT_H
 
-#include <QTest>
-#include <QString>
-#include <QFile>
-#include <QDebug>
-#include <QTextStream>
+#include <gtest/gtest.h>
 
-#include "parsearc.h"
-
-
-class ParseArcUT: public QObject
-{
-    Q_OBJECT
-
-private:
-    bool myCondition()
-    {
-        return true;
-    }
-
-private slots:
-    void initTestCase()
-    {
-        qDebug("Called before everything else.");
-    }
-
-    void myFirstTest()
-    {
-        QVERIFY(true); // check that a condition is satisfied
-        QCOMPARE(1, 1); // compare two values
-    }
-
-    void mySecondTest()
-    {
-        QVERIFY(myCondition());
-        QVERIFY(1 != 2);
-    }
+TEST(TestDummy, ThisShouldFail) {
+    EXPECT_TRUE(false);
+}
 
 //    void moduleTest()
 //    {
@@ -71,24 +40,6 @@ private slots:
 //        }
 //    }
 
-    void cleanupTestCase()
-    {
-        qDebug("Called after myFirstTest and mySecondTest.");
-    }
-
-    void myBenchmark()
-    {
-        QString str1 = QLatin1String("This is a test string");
-        QString str2 = QLatin1String("This is a test string");
-
-        QCOMPARE(str1.localeAwareCompare(str2), 0);
-
-        QBENCHMARK {
-            str1.localeAwareCompare(str2);
-        }
-    }
-
-};
 
 
 #endif  // PARSEARCUT_H
