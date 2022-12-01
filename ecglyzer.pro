@@ -4,5 +4,10 @@ CONFIG+=ordered
 
 SUBDIRS = \
     code \
-    googletests \
-    tests
+    googletest \
+    tests \
+    tests2
+
+
+
+tests2.depends = googletest
