@@ -396,37 +396,37 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
 
 
     fall = fopen(outputFilePath.c_str(),"w");
-    fprintf(fall,"Time%c",CSVSEPARATOR);
-    for (i=0;i<nchannels;i++) {
-        fprintf(fall,"%s",channels[i].name);
-        if (i == nchannels-1)
-            fprintf(fall,"\n");
-        else
-            fprintf(fall,"%c",CSVSEPARATOR);
-    }
-    for (i=0;i<nrecords;i++) {
-        for (j=0;j<nchannels;j++) {
-            if (savesingle) {
-                fprintf(fout[j],"%lf%c%d\n",i/(double)frequency,CSVSEPARATOR,channels[j].v[i]);
-            }
-            if (j == 0)
-                fprintf(fall,"%lf%c",i/(double)frequency,CSVSEPARATOR);
-            fprintf(fall,"%d",channels[j].v[i]);
-            if (j == nchannels-1) {
-                fprintf(fall,"\n");
-            } else {
-                fprintf(fall,"%c",CSVSEPARATOR);
-            }
-        }
-    }
-    fclose(fin);
-    if (savesingle) {
-        for (j=0;j<nchannels;j++)
-            fclose(fout[j]);
-    }
-    fclose(fall);
+//    fprintf(fall,"Time%c",CSVSEPARATOR);
+//    for (i=0;i<nchannels;i++) {
+//        fprintf(fall,"%s",channels[i].name);
+//        if (i == nchannels-1)
+//            fprintf(fall,"\n");
+//        else
+//            fprintf(fall,"%c",CSVSEPARATOR);
+//    }
+//    for (i=0;i<nrecords;i++) {
+//        for (j=0;j<nchannels;j++) {
+//            if (savesingle) {
+//                fprintf(fout[j],"%lf%c%d\n",i/(double)frequency,CSVSEPARATOR,channels[j].v[i]);
+//            }
+//            if (j == 0)
+//                fprintf(fall,"%lf%c",i/(double)frequency,CSVSEPARATOR);
+//            fprintf(fall,"%d",channels[j].v[i]);
+//            if (j == nchannels-1) {
+//                fprintf(fall,"\n");
+//            } else {
+//                fprintf(fall,"%c",CSVSEPARATOR);
+//            }
+//        }
+//    }
+//    fclose(fin);
+//    if (savesingle) {
+//        for (j=0;j<nchannels;j++)
+//            fclose(fout[j]);
+//    }
+//    fclose(fall);
 
-    fclose(flog);
+//    fclose(flog);
 
     return 0;
 }

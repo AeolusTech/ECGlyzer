@@ -3,47 +3,42 @@
 
 #include <gtest/gtest.h>
 
-#include <QString>
-#include <QFile>
-#include <QTextStream>
+#include <fstream>
 
 #include "parsearc.h"
 
-TEST(TestDummy, ThisShouldFail) {
-    EXPECT_TRUE(false);
+TEST(TestDummy, ThisShouldPass) {
+    EXPECT_TRUE(true);
 }
 
 TEST(ParseArcUT, moduleTest)
 {
-    parsearc("/Users/kkc/private-repos/holter/ECGlyzer/tests/sample.arc", "/Users/kkc/private-repos/holter/ECGlyzer/tests");
+    parsearc("/Users/kkc/private-repos/holter/ECGlyzer/tests/sample.arc", "/Users/kkc/private-repos/holter/");
 
     const std::string expected_filename = "/Users/kkc/private-repos/holter/ECGlyzer/tests/expected_channel_all.csv";
 
-    QFile data1(expected_filename.c_str());
-    if (!data1.open(QIODevice::ReadOnly | QIODevice::Text)){
-        std::string fail_msg = expected_filename + "file can't be opened...";
+    std::ifstream data1(expected_filename);
+    std::string genfile1((std::istreambuf_iterator<char>(data1)),
+                          std::istreambuf_iterator<char>());
+
+    if (!data1.is_open()){
+        std::string fail_msg = expected_filename + " file can't be opened...";
         FAIL() << fail_msg.c_str();
     }
 
-    const std::string test_filename = "channel_all.csv";
+    const std::string test_filename = "/Users/kkc/private-repos/holter/channel_all.csv";
 
-    QFile data2(test_filename.c_str());
-    if (!data2.open(QIODevice::ReadOnly | QIODevice::Text)){
-        std::string fail_msg = test_filename + "file can't be opened...";
+    std::ifstream data2(test_filename);
+    std::string genfile2((std::istreambuf_iterator<char>(data2)),
+                          std::istreambuf_iterator<char>());
+
+    if (!data2.is_open()){
+        std::string fail_msg = test_filename + " file can't be opened...";
         FAIL() << fail_msg.c_str();
     }
 
 
-    QTextStream in1(&data1), in2(&data2);
-
-    while ( !in1.atEnd() && !in2.atEnd() ) {
-        QString num1 = in1.readLine();
-        QString num2 = in2.readLine();
-        if ( num1 != num2 ) {
-            std::string fail_msg = "different lines :(:\n\nExpected:\n" + num1.toStdString() + "\nGot:\n" + num2.toStdString();
-            FAIL() << fail_msg.c_str();
-        }
-    }
+    ASSERT_EQ(genfile1, genfile2);
 }
 
 
