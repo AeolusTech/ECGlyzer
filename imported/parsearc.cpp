@@ -73,6 +73,56 @@ void SkipTo(FILE *,int *,int);
 void LogFile(FILE *,char *,char *,int,char);
 char *TrimWhitespaces(char *str);
 
+namespace {
+    int frequency;
+}
+
+void SaveDataIntoCsv(const std::string& outputFilePath)
+{
+    FILE *fall, *fout[nchannels];
+    char fname[64];
+    // Save data in CSV format
+    // Open one file for each channel, and one for all combined
+    if (savesingle) {
+        for (int i=0; i < nchannels; i++) {
+            sprintf(fname,"channel_%02d.csv",i+1);
+            fout[i] = fopen(fname,"w");
+            fprintf(fout[i],"Time%c%s\n",CSVSEPARATOR,channels[i].name);
+        }
+    }
+
+
+    fall = fopen(outputFilePath.c_str(),"w");
+    fprintf(fall,"Time%c",CSVSEPARATOR);
+    for (int i = 0; i < nchannels; i++) {
+        fprintf(fall,"%s",channels[i].name);
+        if (i == nchannels-1)
+            fprintf(fall,"\n");
+        else
+            fprintf(fall,"%c",CSVSEPARATOR);
+    }
+    for (int i = 0; i < nrecords; i++) {
+        for (int j = 0; j < nchannels; j++) {
+            if (savesingle) {
+                fprintf(fout[j],"%lf%c%d\n",i/(double)frequency,CSVSEPARATOR,channels[j].v[i]);
+            }
+            if (j == 0)
+                fprintf(fall,"%lf%c",i/(double)frequency,CSVSEPARATOR);
+            fprintf(fall,"%d",channels[j].v[i]);
+            if (j == nchannels-1) {
+                fprintf(fall,"\n");
+            } else {
+                fprintf(fall,"%c",CSVSEPARATOR);
+            }
+        }
+    }
+
+    if (savesingle) {
+        for (int j = 0; j < nchannels; j++)
+            fclose(fout[j]);
+    }
+    fclose(fall);
+}
 
 int parsearc(const std::string& filename, const std::string& outputFilePath) {
     int i,j=0,ic,nc,nptr=0,nfooter=0;
@@ -80,9 +130,7 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
     char s[1024];
     short int sc;
     unsigned short int usc;
-    int frequency;
-    FILE *fin,*fall,*flog,*fout[nchannels];
-    char fname[64];
+    FILE *fin,*flog;
     time_t time1,time2;
 
     // Set up channel structure
@@ -383,50 +431,12 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
         fprintf(stderr,"\n--- Offset %d ---\n",nptr);
     if (verbose)
         fprintf(stderr,"%d trailing bytes\n",nfooter);
+    fclose(fin);
+    fclose(flog);
 
-    // Save data in CSV format
-    // Open one file for each channel, and one for all combined
-    if (savesingle) {
-        for (i=0;i<nchannels;i++) {
-            sprintf(fname,"channel_%02d.csv",i+1);
-            fout[i] = fopen(fname,"w");
-            fprintf(fout[i],"Time%c%s\n",CSVSEPARATOR,channels[i].name);
-        }
-    }
+    SaveDataIntoCsv(outputFilePath);
 
 
-    fall = fopen(outputFilePath.c_str(),"w");
-//    fprintf(fall,"Time%c",CSVSEPARATOR);
-//    for (i=0;i<nchannels;i++) {
-//        fprintf(fall,"%s",channels[i].name);
-//        if (i == nchannels-1)
-//            fprintf(fall,"\n");
-//        else
-//            fprintf(fall,"%c",CSVSEPARATOR);
-//    }
-//    for (i=0;i<nrecords;i++) {
-//        for (j=0;j<nchannels;j++) {
-//            if (savesingle) {
-//                fprintf(fout[j],"%lf%c%d\n",i/(double)frequency,CSVSEPARATOR,channels[j].v[i]);
-//            }
-//            if (j == 0)
-//                fprintf(fall,"%lf%c",i/(double)frequency,CSVSEPARATOR);
-//            fprintf(fall,"%d",channels[j].v[i]);
-//            if (j == nchannels-1) {
-//                fprintf(fall,"\n");
-//            } else {
-//                fprintf(fall,"%c",CSVSEPARATOR);
-//            }
-//        }
-//    }
-//    fclose(fin);
-//    if (savesingle) {
-//        for (j=0;j<nchannels;j++)
-//            fclose(fout[j]);
-//    }
-//    fclose(fall);
-
-//    fclose(flog);
 
     return 0;
 }
