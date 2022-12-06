@@ -5,6 +5,8 @@
 #include <cmath>
 #include <sys/time.h>
 
+#include <vector>
+
 #define TRUE  1
 #define FALSE 0
 #define CSVSEPARATOR ';'
@@ -55,15 +57,18 @@ int debug = FALSE;
 int savesingle = FALSE;
 
 
-typedef struct {
+struct CHANNEL {
     char name[10];
-    short int *v;
-} CHANNEL;
+    std::vector<short int> v;
+};
 
 
-CHANNEL *channels = NULL;
 int nchannels = 12;
 int nrecords = 0;
+
+const unsigned constNoOfChannels = nchannels;
+
+std::vector<CHANNEL> channels(constNoOfChannels, CHANNEL{});
 
 
 
@@ -85,7 +90,7 @@ void SaveDataIntoCsv(const std::string& outputFilePath)
     // Open one file for each channel, and one for all combined
     if (savesingle) {
         for (int i=0; i < nchannels; i++) {
-            sprintf(fname,"channel_%02d.csv",i+1);
+            sprintf(fname, "channel_%02d.csv",i+1);
             fout[i] = fopen(fname,"w");
             fprintf(fout[i],"Time%c%s\n",CSVSEPARATOR,channels[i].name);
         }
@@ -135,11 +140,11 @@ void ReadDataFromArc(const std::string& filename)
     time_t time1,time2;
 
     // Set up channel structure
-    channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
+//    channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
     for (int i = 0; i < nchannels; i++) {
         for (int j = 0; j < 10; j++)
             channels[i].name[j] = '\0';
-        channels[i].v = NULL;
+//        channels[i].v = NULL;
     }
 
     // Open log file
@@ -399,8 +404,8 @@ void ReadDataFromArc(const std::string& filename)
     while (fread(&usc,2,1,fin) == 1) {
         if (usc < 20)
             break;
-        channels[nc].v = reinterpret_cast<short*>(realloc(channels[nc].v, (nrecords+1)*sizeof(short int)));
-        channels[nc].v[nrecords] = (int)usc - 32768; // Unsigned to signed
+//        channels[nc].v = reinterpret_cast<short*>(realloc(channels[nc].v, (nrecords+1)*sizeof(short int)));
+        channels[nc].v.push_back( (int)usc - 32768); // Unsigned to signed
         nc++;
         if (nc == nchannels) {
             nc = 0;
