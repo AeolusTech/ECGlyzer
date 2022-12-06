@@ -124,8 +124,9 @@ void SaveDataIntoCsv(const std::string& outputFilePath)
     fclose(fall);
 }
 
-int parsearc(const std::string& filename, const std::string& outputFilePath) {
-    int i,j=0,ic,nc,nptr=0,nfooter=0;
+void ReadDataFromArc(const std::string& filename)
+{
+    int ic,nc,nptr=0,nfooter=0;
     int hours,minutes,seconds;
     char s[1024];
     short int sc;
@@ -135,8 +136,8 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
 
     // Set up channel structure
     channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
-    for (i=0;i<nchannels;i++) {
-        for (j=0;j<10;j++)
+    for (int i = 0; i < nchannels; i++) {
+        for (int j = 0; j < 10; j++)
             channels[i].name[j] = '\0';
         channels[i].v = NULL;
     }
@@ -282,7 +283,7 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
 
     // Skip to and read channel names
     SkipTo(fin,&nptr,CHANNELOFFSET);
-    for (j=0;j<nchannels;j++) {
+    for (int j = 0; j < nchannels; j++) {
         ReadString(fin,s,&nptr,8);
         LogFile(flog,"Electrode name:",s,0,'s');
         strcpy(channels[j].name, TrimWhitespaces(s));
@@ -433,6 +434,10 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
         fprintf(stderr,"%d trailing bytes\n",nfooter);
     fclose(fin);
     fclose(flog);
+}
+
+int parsearc(const std::string& filename, const std::string& outputFilePath) {
+    ReadDataFromArc(filename);
 
     SaveDataIntoCsv(outputFilePath);
 
