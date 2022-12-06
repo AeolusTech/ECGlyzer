@@ -1,5 +1,5 @@
 #include "parsearc.h"
-
+#include <string>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -55,9 +55,13 @@ int debug = FALSE;
 int savesingle = FALSE;
 
 
+typedef struct {
+    char name[10];
+    short int *v;
+} CHANNEL;
 
 
-
+CHANNEL *channels = NULL;
 int nchannels = 12;
 int nrecords = 0;
 int frequency = 0;
@@ -71,14 +75,14 @@ void LogFile(FILE *,char *,char *,int,char);
 char *TrimWhitespaces(char *str);
 
 
-void ExportCsv(const std::vector<CHANNEL>& channels, const std::string& outputFilePath)
+void ExportCsv(const std::string& outputFilePath)
 {
     // TODO: add check to see if opening file succeeded
 
     FILE *fall = fopen(outputFilePath.c_str(),"w");
     fprintf(fall,"Time%c",CSVSEPARATOR);
     for (int i = 0; i < nchannels; i++) {
-        fprintf(fall,"%s",channels[i].name.c_str());
+        fprintf(fall,"%s",channels[i].name);
         if (i == nchannels-1)
             fprintf(fall,"\n");
         else
@@ -101,22 +105,24 @@ void ExportCsv(const std::vector<CHANNEL>& channels, const std::string& outputFi
     fclose(fall);
 }
 
-std::vector<CHANNEL> ReadArcData(const std::string& filename)
+void ReadArcData(const std::string& filename)
 {
     int ic,nc,nptr=0,nfooter=0;
+    //int hours,minutes,seconds;
     char s[1024];
     short int sc;
     unsigned short int usc;
 
     char fname[64];
     time_t time1,time2;
-    std::vector<CHANNEL> channels;
 
     // Set up channel structure
+    channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
     for (int i=0; i<nchannels; i++) {
-        channels.push_back(CHANNEL{});
+        for (int j=0; j<10; j++)
+            channels[i].name[j] = '\0';
+        channels[i].v = NULL;
     }
-
 
     // Open log file
     FILE *flog = fopen("metadata.txt","w");
@@ -263,7 +269,7 @@ std::vector<CHANNEL> ReadArcData(const std::string& filename)
     for (int j=0; j < nchannels; j++) {
         ReadString(fin,s,&nptr,8);
         LogFile(flog,"Electrode name:",s,0,'s');
-        channels[j].name = TrimWhitespaces(s);
+        strcpy(channels[j].name, TrimWhitespaces(s));
     }
     if (debug)
         fprintf(stderr,"\n--- Offset %d ---\n",nptr);
@@ -376,7 +382,7 @@ std::vector<CHANNEL> ReadArcData(const std::string& filename)
     while (fread(&usc,2,1,fin) == 1) {
         if (usc < 20)
             break;
-        channels[nc].v.reserve(nrecords+1);
+        channels[nc].v = reinterpret_cast<short*>(realloc(channels[nc].v, (nrecords+1)*sizeof(short int)));
         channels[nc].v[nrecords] = (int)usc - 32768; // Unsigned to signed
         nc++;
         if (nc == nchannels) {
@@ -416,14 +422,13 @@ std::vector<CHANNEL> ReadArcData(const std::string& filename)
     fclose(fin);
     fclose(flog);
 
-    return channels;
 }
 
 int parsearc(const std::string& filename, const std::string& outputFilePath)
 {
-    std::vector<CHANNEL> channels = ReadArcData(filename);
+    ReadArcData(filename);
 
-    ExportCsv(channels, outputFilePath);
+    ExportCsv(outputFilePath);
 
 
     return 0;
