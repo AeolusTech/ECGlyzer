@@ -64,7 +64,6 @@ typedef struct {
 CHANNEL *channels = NULL;
 int nchannels = 12;
 int nrecords = 0;
-int frequency = 0;
 
 
 
@@ -75,60 +74,29 @@ void LogFile(FILE *,char *,char *,int,char);
 char *TrimWhitespaces(char *str);
 
 
-void ExportCsv(const std::string& outputFilePath)
-{
-    // TODO: add check to see if opening file succeeded
-
-    FILE *fall = fopen(outputFilePath.c_str(),"w");
-    fprintf(fall,"Time%c",CSVSEPARATOR);
-    for (int i = 0; i < nchannels; i++) {
-        fprintf(fall,"%s",channels[i].name);
-        if (i == nchannels-1)
-            fprintf(fall,"\n");
-        else
-            fprintf(fall,"%c",CSVSEPARATOR);
-    }
-    for (int i = 0; i < nrecords; i++) {
-        for (int j = 0; j < nchannels; j++) {
-            if (j == 0)
-                fprintf(fall,"%lf%c",i/(double)frequency,CSVSEPARATOR);
-            fprintf(fall,"%d", channels[j].v[i]);
-            if (j == nchannels-1) {
-                fprintf(fall,"\n");
-            } else {
-                fprintf(fall,"%c",CSVSEPARATOR);
-            }
-        }
-    }
-
-
-    fclose(fall);
-}
-
-void ReadArcData(const std::string& filename)
-{
-    int ic,nc,nptr=0,nfooter=0;
-    //int hours,minutes,seconds;
+int parsearc(const std::string& filename, const std::string& outputFilePath) {
+    int i,j=0,ic,nc,nptr=0,nfooter=0;
+    int hours,minutes,seconds;
     char s[1024];
     short int sc;
     unsigned short int usc;
-
+    int frequency;
+    FILE *fin,*fall,*flog,*fout[nchannels];
     char fname[64];
     time_t time1,time2;
 
     // Set up channel structure
     channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
-    for (int i=0; i<nchannels; i++) {
-        for (int j=0; j<10; j++)
+    for (i=0;i<nchannels;i++) {
+        for (j=0;j<10;j++)
             channels[i].name[j] = '\0';
         channels[i].v = NULL;
     }
 
     // Open log file
-    FILE *flog = fopen("metadata.txt","w");
+    flog = fopen("metadata.txt","w");
 
     // Open file
-    FILE *fin;
     if ((fin = fopen(filename.c_str(),"rb")) == NULL) {
         fprintf(stderr,"Failed to open file \"%s\"\n",filename.c_str());
         exit(-1);
@@ -266,7 +234,7 @@ void ReadArcData(const std::string& filename)
 
     // Skip to and read channel names
     SkipTo(fin,&nptr,CHANNELOFFSET);
-    for (int j=0; j < nchannels; j++) {
+    for (j=0;j<nchannels;j++) {
         ReadString(fin,s,&nptr,8);
         LogFile(flog,"Electrode name:",s,0,'s');
         strcpy(channels[j].name, TrimWhitespaces(s));
@@ -391,9 +359,7 @@ void ReadArcData(const std::string& filename)
         }
     }
     LogFile(flog,"ECG samples:"," ",nrecords,'i');
-    int seconds = nrecords/frequency;
-    int minutes = 0;
-    int hours = 0;
+    seconds = nrecords/frequency;
     if (seconds < 60) {
         sprintf(s,"%d seconds",seconds);
     } else if (seconds < 3600) {
@@ -418,18 +384,49 @@ void ReadArcData(const std::string& filename)
     if (verbose)
         fprintf(stderr,"%d trailing bytes\n",nfooter);
 
+    // Save data in CSV format
+    // Open one file for each channel, and one for all combined
+    if (savesingle) {
+        for (i=0;i<nchannels;i++) {
+            sprintf(fname,"channel_%02d.csv",i+1);
+            fout[i] = fopen(fname,"w");
+            fprintf(fout[i],"Time%c%s\n",CSVSEPARATOR,channels[i].name);
+        }
+    }
 
-    fclose(fin);
-    fclose(flog);
 
-}
+    fall = fopen(outputFilePath.c_str(),"w");
+//    fprintf(fall,"Time%c",CSVSEPARATOR);
+//    for (i=0;i<nchannels;i++) {
+//        fprintf(fall,"%s",channels[i].name);
+//        if (i == nchannels-1)
+//            fprintf(fall,"\n");
+//        else
+//            fprintf(fall,"%c",CSVSEPARATOR);
+//    }
+//    for (i=0;i<nrecords;i++) {
+//        for (j=0;j<nchannels;j++) {
+//            if (savesingle) {
+//                fprintf(fout[j],"%lf%c%d\n",i/(double)frequency,CSVSEPARATOR,channels[j].v[i]);
+//            }
+//            if (j == 0)
+//                fprintf(fall,"%lf%c",i/(double)frequency,CSVSEPARATOR);
+//            fprintf(fall,"%d",channels[j].v[i]);
+//            if (j == nchannels-1) {
+//                fprintf(fall,"\n");
+//            } else {
+//                fprintf(fall,"%c",CSVSEPARATOR);
+//            }
+//        }
+//    }
+//    fclose(fin);
+//    if (savesingle) {
+//        for (j=0;j<nchannels;j++)
+//            fclose(fout[j]);
+//    }
+//    fclose(fall);
 
-int parsearc(const std::string& filename, const std::string& outputFilePath)
-{
-    ReadArcData(filename);
-
-    ExportCsv(outputFilePath);
-
+//    fclose(flog);
 
     return 0;
 }
