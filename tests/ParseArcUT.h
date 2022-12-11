@@ -7,38 +7,56 @@
 
 #include "parsearc.h"
 
-TEST(TestDummy, ThisShouldPass) {
-    EXPECT_TRUE(true);
+
+testing::AssertionResult AlgorithmGood(const std::string& expected, const std::string& got) {
+  if (expected == got)
+    return testing::AssertionSuccess() << " algorithm is good";
+  else
+    return testing::AssertionFailure() << " algorithm is bad";
 }
 
 TEST(ParseArcUT, moduleTest)
 {
-    parsearc("/Users/kkc/private-repos/holter/ECGlyzer/tests/sample.arc", "/Users/kkc/private-repos/holter/");
-
-    const std::string expected_filename = "/Users/kkc/private-repos/holter/ECGlyzer/tests/expected_channel_all.csv";
-
-    std::ifstream data1(expected_filename);
-    std::string genfile1((std::istreambuf_iterator<char>(data1)),
-                          std::istreambuf_iterator<char>());
-
-    if (!data1.is_open()){
-        std::string fail_msg = expected_filename + " file can't be opened...";
-        FAIL() << fail_msg.c_str();
-    }
-
-    const std::string test_filename = "/Users/kkc/private-repos/holter/channel_all.csv";
-
-    std::ifstream data2(test_filename);
-    std::string genfile2((std::istreambuf_iterator<char>(data2)),
-                          std::istreambuf_iterator<char>());
-
-    if (!data2.is_open()){
-        std::string fail_msg = test_filename + " file can't be opened...";
-        FAIL() << fail_msg.c_str();
-    }
+    auto readData = ReadDataFromArc("/Users/kkc/private-repos/holter/ECGlyzer/tests/sample.arc");
 
 
-    ASSERT_EQ(genfile1, genfile2);
+
+    auto stdVectorChannelToString = [] (std::vector<CHANNEL>&& channels) {
+        std::string retVal;
+        int nrecords = 10240;
+        int nchannels = 12;
+        int frequency = 1024;
+        std::string CSVSEPARATOR = ",";
+
+        for (int i = 0; i < nrecords; i++) {
+            for (int j = 0; j < nchannels; j++) {
+                if (j == 0) {
+                    retVal += std::to_string(i/(double)frequency);
+                    retVal += CSVSEPARATOR;
+                }
+                retVal += channels[j].v[i];
+                if (j == nchannels-1) {
+                    retVal += "\n";
+                } else {
+                    retVal += CSVSEPARATOR;
+                }
+            }
+        }
+
+        return retVal;
+    };
+
+    std::string resultData = stdVectorChannelToString(std::move(readData));
+
+    std::ifstream t("/Users/kkc/private-repos/holter/ECGlyzer/tests/EXPECTED_PARSED_STRING.txt");
+    std::string EXPECTED_PARSED_STRING((std::istreambuf_iterator<char>(t)),
+                     std::istreambuf_iterator<char>());
+
+    EXPECT_TRUE(AlgorithmGood(EXPECTED_PARSED_STRING, resultData));
+
+    std::ofstream out("output.txt");
+    out << resultData;
+    out.close();
 }
 
 

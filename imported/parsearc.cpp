@@ -1,11 +1,10 @@
 #include "parsearc.h"
-#include <string>
+
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 #include <sys/time.h>
 
-#include <vector>
 
 #define TRUE  1
 #define FALSE 0
@@ -57,18 +56,13 @@ int debug = FALSE;
 int savesingle = FALSE;
 
 
-struct CHANNEL {
-    char name[10];
-    std::vector<short int> v;
-};
+
 
 
 int nchannels = 12;
 int nrecords = 0;
 
-const unsigned constNoOfChannels = nchannels;
 
-std::vector<CHANNEL> channels(constNoOfChannels, CHANNEL{});
 
 
 
@@ -82,7 +76,7 @@ namespace {
     int frequency;
 }
 
-void SaveDataIntoCsv(const std::string& outputFilePath)
+void SaveDataIntoCsv(std::vector<CHANNEL>&& channels, const std::string& outputFilePath)
 {
     FILE *fall, *fout[nchannels];
     char fname[64];
@@ -129,8 +123,11 @@ void SaveDataIntoCsv(const std::string& outputFilePath)
     fclose(fall);
 }
 
-void ReadDataFromArc(const std::string& filename)
+std::vector<CHANNEL> ReadDataFromArc(const std::string& filename)
 {
+    const unsigned constNoOfChannels = nchannels;
+    std::vector<CHANNEL> channels(constNoOfChannels, CHANNEL{});
+
     int ic,nc,nptr=0,nfooter=0;
     int hours,minutes,seconds;
     char s[1024];
@@ -439,17 +436,10 @@ void ReadDataFromArc(const std::string& filename)
         fprintf(stderr,"%d trailing bytes\n",nfooter);
     fclose(fin);
     fclose(flog);
+
+    return channels;
 }
 
-int parsearc(const std::string& filename, const std::string& outputFilePath) {
-    ReadDataFromArc(filename);
-
-    SaveDataIntoCsv(outputFilePath);
-
-
-
-    return 0;
-}
 
 void CleanPrint(int ic,int mode)
 {
@@ -562,4 +552,14 @@ char *TrimWhitespaces(char *str)
   end[1] = '\0';
 
   return str;
+}
+
+
+int parsearc(const std::string& filename, const std::string& outputFilePath) {
+    std::vector<CHANNEL> channels = ReadDataFromArc(filename);
+    SaveDataIntoCsv(std::move(channels), outputFilePath);
+
+
+
+    return 0;
 }
