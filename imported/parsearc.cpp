@@ -561,7 +561,5 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
     std::vector<CHANNEL> channels = ReadDataFromArc(filename);
     SaveDataIntoCsv(std::move(channels), outputFilePath);
 
-
-
     return 0;
 }
