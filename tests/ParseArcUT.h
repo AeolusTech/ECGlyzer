@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <fstream>
+#include <filesystem>
 
 #include "parsearc.h"
 
@@ -18,6 +19,7 @@ testing::AssertionResult AlgorithmGood(const std::string& expected, const std::s
 TEST(ParseArcUT, moduleTest)
 {
     auto readData = ReadDataFromArc("/Users/kkc/private-repos/holter/ECGlyzer/tests/sample.arc");
+    ASSERT_FALSE(readData.empty());
 
 
 
@@ -47,6 +49,7 @@ TEST(ParseArcUT, moduleTest)
     };
 
     std::string resultData = stdVectorChannelToString(std::move(readData));
+    ASSERT_FALSE(resultData.empty());
 
     std::ifstream t("/Users/kkc/private-repos/holter/ECGlyzer/tests/EXPECTED_PARSED_STRING.txt");
     std::string EXPECTED_PARSED_STRING((std::istreambuf_iterator<char>(t)),
