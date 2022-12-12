@@ -1,10 +1,12 @@
 #include "parsearc.h"
+
 #include <cstring>
 #include <string>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 #include <sys/time.h>
+
 
 #define TRUE  1
 #define FALSE 0
@@ -56,42 +58,94 @@ int debug = FALSE;
 int savesingle = FALSE;
 
 
-typedef struct {
-    char name[10];
-    short int *v;
-} CHANNEL;
 
 
-CHANNEL *channels = NULL;
+
 int nchannels = 12;
 int nrecords = 0;
+
+
 
 
 
 void CleanPrint(int,int);
 void ReadString(FILE *,char *,int *,int);
 void SkipTo(FILE *,int *,int);
-void LogFile(FILE *,char *,char *,int,char);
+void LogFile(FILE *,char const *,char const *,int,char);
 char *TrimWhitespaces(char *str);
 
+namespace {
+int frequency;
+}
 
-int parsearc(const std::string& filename, const std::string& outputFilePath) {
-    int i,j=0,ic,nc,nptr=0,nfooter=0;
+const size_t SNPRINTF_LIMIT = 25;
+
+void SaveDataIntoCsv(std::vector<CHANNEL>&& channels, const std::string& outputFilePath)
+{
+    FILE *fall, *fout[nchannels];
+    char fname[64];
+    // Save data in CSV format
+    // Open one file for each channel, and one for all combined
+    if (savesingle) {
+        for (int i=0; i < nchannels; i++) {
+            snprintf(fname, SNPRINTF_LIMIT, "channel_%02d.csv",i+1);
+            fout[i] = fopen(fname,"w");
+            fprintf(fout[i],"Time%c%s\n",CSVSEPARATOR,channels[i].name);
+        }
+    }
+
+
+    fall = fopen(outputFilePath.c_str(),"w");
+    fprintf(fall,"Time%c",CSVSEPARATOR);
+    for (int i = 0; i < nchannels; i++) {
+        fprintf(fall,"%s",channels[i].name);
+        if (i == nchannels-1)
+            fprintf(fall,"\n");
+        else
+            fprintf(fall,"%c",CSVSEPARATOR);
+    }
+    for (int i = 0; i < nrecords; i++) {
+        for (int j = 0; j < nchannels; j++) {
+            if (savesingle) {
+                fprintf(fout[j],"%lf%c%d\n",i/(double)frequency,CSVSEPARATOR,channels[j].v[i]);
+            }
+            if (j == 0)
+                fprintf(fall,"%lf%c",i/(double)frequency,CSVSEPARATOR);
+            fprintf(fall,"%d",channels[j].v[i]);
+            if (j == nchannels-1) {
+                fprintf(fall,"\n");
+            } else {
+                fprintf(fall,"%c",CSVSEPARATOR);
+            }
+        }
+    }
+
+    if (savesingle) {
+        for (int j = 0; j < nchannels; j++)
+            fclose(fout[j]);
+    }
+    fclose(fall);
+}
+
+std::vector<CHANNEL> ReadDataFromArc(const std::string& filename)
+{
+    const unsigned constNoOfChannels = nchannels;
+    std::vector<CHANNEL> channels(constNoOfChannels, CHANNEL{});
+
+    int ic,nc,nptr=0,nfooter=0;
     int hours,minutes,seconds;
     char s[1024];
     short int sc;
     unsigned short int usc;
-    int frequency;
-    FILE *fin,*fall,*flog,*fout[nchannels];
-    char fname[64];
+    FILE *fin,*flog;
     time_t time1,time2;
 
     // Set up channel structure
-    channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
-    for (i=0;i<nchannels;i++) {
-        for (j=0;j<10;j++)
+    //    channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
+    for (int i = 0; i < nchannels; i++) {
+        for (int j = 0; j < 10; j++)
             channels[i].name[j] = '\0';
-        channels[i].v = NULL;
+        //        channels[i].v = NULL;
     }
 
     // Open log file
@@ -235,10 +289,10 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
 
     // Skip to and read channel names
     SkipTo(fin,&nptr,CHANNELOFFSET);
-    for (j=0;j<nchannels;j++) {
+    for (int j = 0; j < nchannels; j++) {
         ReadString(fin,s,&nptr,8);
         LogFile(flog,"Electrode name:",s,0,'s');
-        strcpy(channels[j].name, TrimWhitespaces(s));
+        strncpy(channels[j].name, TrimWhitespaces(s), SNPRINTF_LIMIT);
     }
     if (debug)
         fprintf(stderr,"\n--- Offset %d ---\n",nptr);
@@ -351,8 +405,7 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
     while (fread(&usc,2,1,fin) == 1) {
         if (usc < 20)
             break;
-        channels[nc].v = reinterpret_cast<short*>(realloc(channels[nc].v, (nrecords+1)*sizeof(short int)));
-        channels[nc].v[nrecords] = (int)usc - 32768; // Unsigned to signed
+        channels[nc].v.push_back( (int)usc - 32768); // Unsigned to signed
         nc++;
         if (nc == nchannels) {
             nc = 0;
@@ -362,16 +415,16 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
     LogFile(flog,"ECG samples:"," ",nrecords,'i');
     seconds = nrecords/frequency;
     if (seconds < 60) {
-        sprintf(s,"%d seconds",seconds);
+        snprintf(s, SNPRINTF_LIMIT, "%d seconds",seconds);
     } else if (seconds < 3600) {
         minutes = seconds / 60;
         seconds = seconds % 60;
-        sprintf(s,"%d minutes, %d seconds",minutes,seconds);
+        snprintf(s, SNPRINTF_LIMIT, "%d minutes, %d seconds",minutes,seconds);
     } else {
         hours = seconds / 3600;
         minutes = (seconds - hours*3600) / 60;
         seconds = (seconds - hours*3600) % 60;
-        sprintf(s,"%d hours, %d minutes, %d seconds",hours,minutes,seconds);
+        snprintf(s, SNPRINTF_LIMIT, "%d hours, %d minutes, %d seconds",hours,minutes,seconds);
     }
     LogFile(flog,"Duration:",s,nrecords/frequency,'s');
 
@@ -384,53 +437,12 @@ int parsearc(const std::string& filename, const std::string& outputFilePath) {
         fprintf(stderr,"\n--- Offset %d ---\n",nptr);
     if (verbose)
         fprintf(stderr,"%d trailing bytes\n",nfooter);
-
-    // Save data in CSV format
-    // Open one file for each channel, and one for all combined
-    if (savesingle) {
-        for (i=0;i<nchannels;i++) {
-            sprintf(fname,"channel_%02d.csv",i+1);
-            fout[i] = fopen(fname,"w");
-            fprintf(fout[i],"Time%c%s\n",CSVSEPARATOR,channels[i].name);
-        }
-    }
-
-
-    fall = fopen(outputFilePath.c_str(),"w");
-    fprintf(fall,"Time%c",CSVSEPARATOR);
-    for (i=0;i<nchannels;i++) {
-        fprintf(fall,"%s",channels[i].name);
-        if (i == nchannels-1)
-            fprintf(fall,"\n");
-        else
-            fprintf(fall,"%c",CSVSEPARATOR);
-    }
-    for (i=0;i<nrecords;i++) {
-        for (j=0;j<nchannels;j++) {
-            if (savesingle) {
-                fprintf(fout[j],"%lf%c%d\n",i/(double)frequency,CSVSEPARATOR,channels[j].v[i]);
-            }
-            if (j == 0)
-                fprintf(fall,"%lf%c",i/(double)frequency,CSVSEPARATOR);
-            fprintf(fall,"%d",channels[j].v[i]);
-            if (j == nchannels-1) {
-                fprintf(fall,"\n");
-            } else {
-                fprintf(fall,"%c",CSVSEPARATOR);
-            }
-        }
-    }
     fclose(fin);
-    if (savesingle) {
-        for (j=0;j<nchannels;j++)
-            fclose(fout[j]);
-    }
-    fclose(fall);
-
     fclose(flog);
 
-    return 0;
+    return channels;
 }
+
 
 void CleanPrint(int ic,int mode)
 {
@@ -456,10 +468,8 @@ void CleanPrint(int ic,int mode)
 
 void ReadString(FILE *fptr,char *s,int *istart,int len)
 {
-    int i,ic;
-
-    for (i=0;i<len;i++) {
-        ic = fgetc(fptr);
+    for (int i=0;i<len;i++) {
+        int ic = fgetc(fptr);
         if (ic < 32 || ic > 126)
             ic = ' ';
         s[i] = ic;
@@ -470,16 +480,12 @@ void ReadString(FILE *fptr,char *s,int *istart,int len)
 
 void SkipTo(FILE *fptr,int *istart,int istop)
 {
-    int n,i,ic,linecount=0;
-    unsigned short sc = 0;
-
-    sc = 0;
-    ic = 0;
+    int linecount=0;
 
     // Byte at a time
-    n = *istart;
-    for (i=n;i<istop;i++) {
-        ic = fgetc(fptr);
+    int n = *istart;
+    for (int i=n;i<istop;i++) {
+        int ic = fgetc(fptr);
         CleanPrint(ic,FALSE);
         (*istart)++;
 
@@ -509,38 +515,51 @@ void SkipTo(FILE *fptr,int *istart,int istop)
         fprintf(stderr,"\n--- Offset %d ---\n",*istart);
 }
 
-void LogFile(FILE *fptr,char *s1,char *s2,int a,char datatype)
+void LogFile(FILE *fptr,char const *s1,char const *s2,int a,char datatype)
 {
+    char* s2copy = (char*)malloc(sizeof(char) * strlen(s2));
+    strncpy(s2copy, s2, SNPRINTF_LIMIT);
+
     if (s2[strlen(s2)-1] == '\n')
-        s2[strlen(s2)-1] = '\0';
+        s2copy[strlen(s2)-1] = '\0';
     if (datatype == 's') {
-        fprintf(fptr,"%s %s\n",s1,s2);
+        fprintf(fptr,"%s %s\n",s1,s2copy);
         if (verbose)
-            fprintf(stderr,"%s %s\n",s1,s2);
+            fprintf(stderr,"%s %s\n",s1,s2copy);
     } else {
         fprintf(fptr,"%s %d\n",s1,a);
         if (verbose)
             fprintf(stderr,"%s %d\n",s1,a);
     }
+
+    free(s2copy);
 }
 
 
 char *TrimWhitespaces(char *str)
 {
-  char *end;
+    char *end;
 
-  // Trim leading space
-  while(isspace((unsigned char)*str)) str++;
+    // Trim leading space
+    while(isspace((unsigned char)*str)) str++;
 
-  if(*str == 0)  // All spaces?
+    if(*str == 0)  // All spaces?
+        return str;
+
+    // Trim trailing space
+    end = str + strlen(str) - 1;
+    while(end > str && isspace((unsigned char)*end)) end--;
+
+    // Write new null terminator character
+    end[1] = '\0';
+
     return str;
+}
 
-  // Trim trailing space
-  end = str + strlen(str) - 1;
-  while(end > str && isspace((unsigned char)*end)) end--;
 
-  // Write new null terminator character
-  end[1] = '\0';
+int parsearc(const std::string& filename, const std::string& outputFilePath) {
+    std::vector<CHANNEL> channels = ReadDataFromArc(filename);
+    SaveDataIntoCsv(std::move(channels), outputFilePath);
 
-  return str;
+    return 0;
 }
