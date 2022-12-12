@@ -69,12 +69,14 @@ int nrecords = 0;
 void CleanPrint(int,int);
 void ReadString(FILE *,char *,int *,int);
 void SkipTo(FILE *,int *,int);
-void LogFile(FILE *,char *,char *,int,char);
+void LogFile(FILE *,char const *,char const *,int,char);
 char *TrimWhitespaces(char *str);
 
 namespace {
-    int frequency;
+int frequency;
 }
+
+const size_t SNPRINTF_LIMIT = 25;
 
 void SaveDataIntoCsv(std::vector<CHANNEL>&& channels, const std::string& outputFilePath)
 {
@@ -84,7 +86,7 @@ void SaveDataIntoCsv(std::vector<CHANNEL>&& channels, const std::string& outputF
     // Open one file for each channel, and one for all combined
     if (savesingle) {
         for (int i=0; i < nchannels; i++) {
-            sprintf(fname, "channel_%02d.csv",i+1);
+            snprintf(fname, SNPRINTF_LIMIT, "channel_%02d.csv",i+1);
             fout[i] = fopen(fname,"w");
             fprintf(fout[i],"Time%c%s\n",CSVSEPARATOR,channels[i].name);
         }
@@ -137,11 +139,11 @@ std::vector<CHANNEL> ReadDataFromArc(const std::string& filename)
     time_t time1,time2;
 
     // Set up channel structure
-//    channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
+    //    channels = reinterpret_cast<CHANNEL*>(malloc(nchannels*sizeof(CHANNEL)));
     for (int i = 0; i < nchannels; i++) {
         for (int j = 0; j < 10; j++)
             channels[i].name[j] = '\0';
-//        channels[i].v = NULL;
+        //        channels[i].v = NULL;
     }
 
     // Open log file
@@ -288,7 +290,7 @@ std::vector<CHANNEL> ReadDataFromArc(const std::string& filename)
     for (int j = 0; j < nchannels; j++) {
         ReadString(fin,s,&nptr,8);
         LogFile(flog,"Electrode name:",s,0,'s');
-        strcpy(channels[j].name, TrimWhitespaces(s));
+        strncpy(channels[j].name, TrimWhitespaces(s), SNPRINTF_LIMIT);
     }
     if (debug)
         fprintf(stderr,"\n--- Offset %d ---\n",nptr);
@@ -401,7 +403,6 @@ std::vector<CHANNEL> ReadDataFromArc(const std::string& filename)
     while (fread(&usc,2,1,fin) == 1) {
         if (usc < 20)
             break;
-//        channels[nc].v = reinterpret_cast<short*>(realloc(channels[nc].v, (nrecords+1)*sizeof(short int)));
         channels[nc].v.push_back( (int)usc - 32768); // Unsigned to signed
         nc++;
         if (nc == nchannels) {
@@ -412,16 +413,16 @@ std::vector<CHANNEL> ReadDataFromArc(const std::string& filename)
     LogFile(flog,"ECG samples:"," ",nrecords,'i');
     seconds = nrecords/frequency;
     if (seconds < 60) {
-        sprintf(s,"%d seconds",seconds);
+        snprintf(s, SNPRINTF_LIMIT, "%d seconds",seconds);
     } else if (seconds < 3600) {
         minutes = seconds / 60;
         seconds = seconds % 60;
-        sprintf(s,"%d minutes, %d seconds",minutes,seconds);
+        snprintf(s, SNPRINTF_LIMIT, "%d minutes, %d seconds",minutes,seconds);
     } else {
         hours = seconds / 3600;
         minutes = (seconds - hours*3600) / 60;
         seconds = (seconds - hours*3600) % 60;
-        sprintf(s,"%d hours, %d minutes, %d seconds",hours,minutes,seconds);
+        snprintf(s, SNPRINTF_LIMIT, "%d hours, %d minutes, %d seconds",hours,minutes,seconds);
     }
     LogFile(flog,"Duration:",s,nrecords/frequency,'s');
 
@@ -465,10 +466,8 @@ void CleanPrint(int ic,int mode)
 
 void ReadString(FILE *fptr,char *s,int *istart,int len)
 {
-    int i,ic;
-
-    for (i=0;i<len;i++) {
-        ic = fgetc(fptr);
+    for (int i=0;i<len;i++) {
+        int ic = fgetc(fptr);
         if (ic < 32 || ic > 126)
             ic = ' ';
         s[i] = ic;
@@ -479,16 +478,12 @@ void ReadString(FILE *fptr,char *s,int *istart,int len)
 
 void SkipTo(FILE *fptr,int *istart,int istop)
 {
-    int n,i,ic,linecount=0;
-    unsigned short sc = 0;
-
-    sc = 0;
-    ic = 0;
+    int linecount=0;
 
     // Byte at a time
-    n = *istart;
-    for (i=n;i<istop;i++) {
-        ic = fgetc(fptr);
+    int n = *istart;
+    for (int i=n;i<istop;i++) {
+        int ic = fgetc(fptr);
         CleanPrint(ic,FALSE);
         (*istart)++;
 
@@ -518,40 +513,45 @@ void SkipTo(FILE *fptr,int *istart,int istop)
         fprintf(stderr,"\n--- Offset %d ---\n",*istart);
 }
 
-void LogFile(FILE *fptr,char *s1,char *s2,int a,char datatype)
+void LogFile(FILE *fptr,char const *s1,char const *s2,int a,char datatype)
 {
+    char* s2copy = (char*)malloc(sizeof(char) * strlen(s2));
+    strncpy(s2copy, s2, SNPRINTF_LIMIT);
+
     if (s2[strlen(s2)-1] == '\n')
-        s2[strlen(s2)-1] = '\0';
+        s2copy[strlen(s2)-1] = '\0';
     if (datatype == 's') {
-        fprintf(fptr,"%s %s\n",s1,s2);
+        fprintf(fptr,"%s %s\n",s1,s2copy);
         if (verbose)
-            fprintf(stderr,"%s %s\n",s1,s2);
+            fprintf(stderr,"%s %s\n",s1,s2copy);
     } else {
         fprintf(fptr,"%s %d\n",s1,a);
         if (verbose)
             fprintf(stderr,"%s %d\n",s1,a);
     }
+
+    free(s2copy);
 }
 
 
 char *TrimWhitespaces(char *str)
 {
-  char *end;
+    char *end;
 
-  // Trim leading space
-  while(isspace((unsigned char)*str)) str++;
+    // Trim leading space
+    while(isspace((unsigned char)*str)) str++;
 
-  if(*str == 0)  // All spaces?
+    if(*str == 0)  // All spaces?
+        return str;
+
+    // Trim trailing space
+    end = str + strlen(str) - 1;
+    while(end > str && isspace((unsigned char)*end)) end--;
+
+    // Write new null terminator character
+    end[1] = '\0';
+
     return str;
-
-  // Trim trailing space
-  end = str + strlen(str) - 1;
-  while(end > str && isspace((unsigned char)*end)) end--;
-
-  // Write new null terminator character
-  end[1] = '\0';
-
-  return str;
 }
 
 
